@@ -315,19 +315,19 @@ class ProjectTreeview(ttk.Treeview):
     def on_delete_obj(self):
         self.menu.hidetip()
         obj_type = str(type(self.obj))
-        if obj_type=="<class 'Package.Antenna.Antenna.Antenna'>":
+        if obj_type=="<class 'Antenna.Antenna'>":
             self.app.antennas.remove(self.obj)
             self.delete_antenna(self.obj)
-        elif obj_type=="<class 'Package.Array.Array.Array'>":
+        elif obj_type=="<class 'Array.Array'>":
             self.app.antennas.remove(self.obj)
             self.delete_antenna(self.obj)
-        elif obj_type=="<class 'Package.Analysis.Analysis.Analysis'>":
+        elif obj_type=="<class 'Analysis.Analysis'>":
             self.app.analyses.remove(self.obj)
             self.delete_analysis(self.obj)
-        elif obj_type=="<class 'Package.Optimization.Optimization.Optimization'>":
+        elif obj_type=="<class 'Optimization.Optimization'>":
             self.app.optims.remove(self.obj)
             self.delete_optim(self.obj)
-        elif obj_type=="<class 'Package.Results.ResultFrame.ResultFrame'>":
+        elif obj_type=="<class 'ResultFrame.ResultFrame'>":
             self.app.tabs.forget(self.obj)
             self.delete_result_tab(self.obj)
         # elif obj_type=="<class 'Result.Result'>":
