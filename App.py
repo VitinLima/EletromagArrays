@@ -20,7 +20,7 @@ import ProjectTreeview
 class App(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
-        self.title('PythonArray')
+        self.title('EletromagArrays')
         self.name = 'New project'
         
         self.init_variables()
@@ -33,6 +33,14 @@ class App(tk.Tk):
         self.analyses = []
         self.optims = []
         self.result_tabs = []
+        
+        color = '#303030'
+        self.configure(background=color)
+        style = ttk.Style(self)
+        # set ttk theme to "clam" which support the fieldbackground option
+        style.theme_use("clam")
+        style.configure("Treeview", background=color, 
+                        fieldbackground=color, foreground="white")
     
     def init_variables(self):
         self.frequency = tk.DoubleVar(value=433e6)
@@ -50,27 +58,27 @@ class App(tk.Tk):
             l.notify(self)
     
     def init_layout(self):
-        self.menu_bar = tk.Menu(master=self)
-        self.file_menu = tk.Menu(self.menu_bar, tearoff=0)
-        self.file_menu.add_command(label='New', command=self.new_file)
-        self.file_menu.add_command(label="Open", command=self.open_file)
-        self.file_menu.add_command(label="Save", command=self.save_file)
-        self.file_menu.add_command(label="Save as...", command=self.save_file_as)
-        self.file_menu.add_command(label="Close", command=self.close_file)
+        # self.menu_bar = tk.Menu(master=self)
+        # self.file_menu = tk.Menu(self.menu_bar, tearoff=0)
+        # self.file_menu.add_command(label='New', command=self.new_file)
+        # self.file_menu.add_command(label="Open", command=self.open_file)
+        # self.file_menu.add_command(label="Save", command=self.save_file)
+        # self.file_menu.add_command(label="Save as...", command=self.save_file_as)
+        # self.file_menu.add_command(label="Close", command=self.close_file)
         
-        self.file_menu.add_separator()
+        # self.file_menu.add_separator()
         
-        self.file_menu.add_command(label="Constants", command=self.edit_constants)
+        # self.file_menu.add_command(label="Constants", command=self.edit_constants)
         
-        self.file_menu.add_separator()
+        # self.file_menu.add_separator()
         
-        self.file_menu.add_command(label="Exit", command=self.destroy)
-        self.edit_menu = tk.Menu(self.menu_bar, tearoff=0)
-        self.help_menu = tk.Menu(self.menu_bar, tearoff=0)
-        self.menu_bar.add_cascade(label='File', menu=self.file_menu)
-        self.menu_bar.add_cascade(label='Edit', menu=self.edit_menu)
-        self.menu_bar.add_cascade(label='Help', menu=self.help_menu)
-        self.config(menu=self.menu_bar)
+        # self.file_menu.add_command(label="Exit", command=self.destroy)
+        # self.edit_menu = tk.Menu(self.menu_bar, tearoff=0)
+        # self.help_menu = tk.Menu(self.menu_bar, tearoff=0)
+        # self.menu_bar.add_cascade(label='File', menu=self.file_menu)
+        # self.menu_bar.add_cascade(label='Edit', menu=self.edit_menu)
+        # self.menu_bar.add_cascade(label='Help', menu=self.help_menu)
+        # self.config(menu=self.menu_bar)
         
         self.treeview = ProjectTreeview.ProjectTreeview(self, master=self)
         self.treeview.pack(side='left', fill='both')

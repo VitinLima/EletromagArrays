@@ -16,7 +16,8 @@ import Antenna,AntennaEditorFrame
 import Array,ArrayEditorFrame
 import Analysis,AnalysisEditorFrame
 import Optimization,OptimizationEditorFrame
-import ResultFrame,ResultTabEditorFrame
+import ResultFrame
+from Results import Result,ResultEditorFrame
 # from Result import Result
 
 class ProjectTreeview(ttk.Treeview):
@@ -108,7 +109,7 @@ class ProjectTreeview(ttk.Treeview):
         new_menu = tk.Frame(master=tw)
         tk.Label(master=new_menu, text='Result tabs', justify='left',
                   relief='solid', borderwidth=0).pack(ipadx=1,fill=tk.BOTH)
-        tk.Button(master=new_menu,text='new tab',command=self.on_result_tab_ppp).pack(ipadx=1,fill=tk.BOTH)
+        tk.Button(master=new_menu,text='new tab',command=self.on_new_result_tab).pack(ipadx=1,fill=tk.BOTH)
         tk.Button(master=new_menu,text='update all',command=self.on_update_all_tabs).pack(ipadx=1,fill=tk.BOTH)
         new_menu.pack(ipadx=1)
     
@@ -152,20 +153,20 @@ class ProjectTreeview(ttk.Treeview):
         new_menu = tk.Frame(master=tw)
         tk.Label(master=new_menu, text='Results', justify='left',
                   relief='solid', borderwidth=0).pack(ipadx=1,fill=tk.BOTH)
-        tk.Button(master=new_menu,text='edit',command=self.on_result_tab_ppp).pack(ipadx=1,fill=tk.BOTH)
-        # tk.Button(master=new_menu,text='new result',command=self.on_result_ppp).pack(ipadx=1,fill=tk.BOTH)
+        # tk.Button(master=new_menu,text='edit',command=self.on_result_tab_ppp).pack(ipadx=1,fill=tk.BOTH)
+        # tk.Button(master=new_menu,text='new result',command=self.on_new_result).pack(ipadx=1,fill=tk.BOTH)
         tk.Button(master=new_menu,text='update',command=self.on_update_all_results).pack(ipadx=1,fill=tk.BOTH)
         tk.Button(master=new_menu,text='delete',command=self.on_delete_obj).pack(ipadx=1,fill=tk.BOTH)
         new_menu.pack(ipadx=1)
     
-    # def result_menu(self,tw):
-    #     new_menu = tk.Frame(master=tw)
-    #     tk.Label(master=new_menu, text='Results', justify='left',
-    #               relief='solid', borderwidth=0).pack(ipadx=1,fill=tk.BOTH)
-    #     tk.Button(master=new_menu,text='edit',command=self.on_result_ppp).pack(ipadx=1,fill=tk.BOTH)
-    #     tk.Button(master=new_menu,text='update',command=self.on_update_result).pack(ipadx=1,fill=tk.BOTH)
-    #     tk.Button(master=new_menu,text='delete',command=self.on_delete_obj).pack(ipadx=1,fill=tk.BOTH)
-    #     new_menu.pack(ipadx=1)
+    def result_menu(self,tw):
+        new_menu = tk.Frame(master=tw)
+        tk.Label(master=new_menu, text='Results', justify='left',
+                  relief='solid', borderwidth=0).pack(ipadx=1,fill=tk.BOTH)
+        tk.Button(master=new_menu,text='edit',command=self.on_result_ppp).pack(ipadx=1,fill=tk.BOTH)
+        tk.Button(master=new_menu,text='update',command=self.on_update_result).pack(ipadx=1,fill=tk.BOTH)
+        tk.Button(master=new_menu,text='delete',command=self.on_delete_obj).pack(ipadx=1,fill=tk.BOTH)
+        new_menu.pack(ipadx=1)
     
     def on_antenna_ppp(self):
         self.menu.hidetip()
@@ -269,6 +270,12 @@ class ProjectTreeview(ttk.Treeview):
         OptimizationEditorFrame.OptimizationEditorFrame(optim=optim,app=self.app,master=root,on_done=on_done,on_cancel=on_cancel).pack()
         root.mainloop()
     
+    def on_new_result_tab(self):
+        self.menu.hidetip()
+        result_tab = ResultFrame.ResultFrame(master=self.app.tabs)
+        self.app.add_result_tab(result_tab)
+        self.item(self.result_tabs_iid,open=True)
+    
     def on_result_tab_ppp(self):
         self.menu.hidetip()
         root=tk.Toplevel()
@@ -290,7 +297,7 @@ class ProjectTreeview(ttk.Treeview):
             if not editing:
                 result_tab.destroy()
             root.destroy()
-        ResultTabEditorFrame.ResultTabEditorFrame(app=self.app,result_tab=result_tab,master=root,on_done=on_done,on_cancel=on_cancel).pack()
+        ResultEditorFrame.ResultTabEditorFrame(app=self.app,result_tab=result_tab,master=root,on_done=on_done,on_cancel=on_cancel).pack()
         root.mainloop()
     
     # def on_result_ppp(self):
