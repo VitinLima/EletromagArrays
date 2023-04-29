@@ -10,9 +10,9 @@ from tkinter import ttk
 
 # from AxesEditorFrame import AxesEditorFrame
 
-class ResultEditorFrame(tk.Frame):
+class ResultEditorFrame(ttk.Frame):
     def __init__(self,app,result,on_finish=True,on_done=None,on_cancel=None,master=None,**kw):
-        tk.Frame.__init__(self,master=master,width=300,height=200,**kw)
+        ttk.Frame.__init__(self,master=master,width=300,height=200,**kw)
         self.app = app
         self.result = result
         self.on_finish=on_finish
@@ -32,16 +32,16 @@ class ResultEditorFrame(tk.Frame):
         # self.edit_axes_frame_label = tk.StringVar()
     
     def init_layout(self):
-        fr_left = tk.Frame(master=self)
+        fr_left = ttk.Frame(master=self)
         fr_left.pack(side='left',fill='both')
         
         fr_left_top = ttk.LabelFrame(master=fr_left, text='Tab name:')
         fr_left_top.pack(side='top',fill='both')
         ttk.Entry(master=fr_left_top,textvariable=self.name).pack(side='left',fill='both')
         
-        tk.Button(master=fr_left_top,text='update',command=self._on_update).pack(side='left',fill='both')
+        ttk.Button(master=fr_left_top,text='update',command=self._on_update).pack(side='left',fill='both')
         
-        fr_left_top = tk.Frame(master=fr_left)
+        fr_left_top = ttk.Frame(master=fr_left)
         fr_left_top.pack(side='top',fill='both')
         
         fr_left_top_left = ttk.LabelFrame(master=fr_left_top, text='Antennas')
@@ -64,7 +64,7 @@ class ResultEditorFrame(tk.Frame):
             else:
                 self.analysis_cbbx.current(0)
         
-        fr_left_top = tk.Frame(master=fr_left)
+        fr_left_top = ttk.Frame(master=fr_left)
         fr_left_top.pack(side='top',fill='both')
         
         # fr_top_left = ttk.LabelFrame(master=fr_top, text='Projection')
@@ -74,6 +74,7 @@ class ResultEditorFrame(tk.Frame):
         fr_left_top_left = ttk.LabelFrame(master=fr_left_top, text='Plot')
         fr_left_top_left.pack(side='left',fill='both')
         ttk.Combobox(master=fr_left_top_left,state='readonly',values=self.result.available_plots,textvariable=self.plot_variable).pack(side='left',fill='both')
+        # ttk.Button(master=fr_left_top_left,text='Cross polarization',command=self.on_define_cross_polarization).pack(side='left',fill='both')
         
         if self.on_finish:
             fr_left_top = ttk.LabelFrame(master=fr_left,text='Finish')
@@ -104,6 +105,9 @@ class ResultEditorFrame(tk.Frame):
     def _on_done(self):
         self._on_update()
         self.on_done()
+    
+    # def define_cross_polarization(self):
+    #     root = 
     
     # def on_axes_selection(self, event=None):
     #     selection = self.select_axes_lstbx.curselection()

@@ -16,6 +16,11 @@ class Analysis:
         self.expression=expression
         self.color_expression=color_expression
         
+        self.cross_polarization_X = 0.0
+        self.cross_polarization_Y = 0.0
+        self.cross_polarization_Z = 1.0
+        self.domain = None
+        
         self.listeners = []
         self.ok = True
     

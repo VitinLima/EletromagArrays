@@ -22,6 +22,9 @@ class AnalysisEditorFrame(tk.Frame):
         self.name = tk.StringVar(value=self.analysis.name)
         self.expression = tk.StringVar(value=self.analysis.expression)
         self.color_expression = tk.StringVar(value=self.analysis.color_expression)
+        self.cross_polarization_X_variable = tk.DoubleVar(value=self.analysis.cross_polarization_X)
+        self.cross_polarization_Y_variable = tk.DoubleVar(value=self.analysis.cross_polarization_Y)
+        self.cross_polarization_Z_variable = tk.DoubleVar(value=self.analysis.cross_polarization_Z)
     
     def init_layout(self):
         fr = ttk.LabelFrame(master=self, text='Analysis name:')
@@ -35,6 +38,22 @@ class AnalysisEditorFrame(tk.Frame):
         ttk.Entry(master=fr, textvariable=self.color_expression).pack(side='left',fill='both')
         fr = ttk.LabelFrame(master=self,text='Finish')
         fr.pack(side='top',fill='both')
+        
+        fr_left_top = ttk.Frame(master=fr)
+        fr_left_top.pack(side='top',fill='both')
+        
+        fr_left_top_left = ttk.LabelFrame(master=fr_left_top, text='Cross Polarization Plane')
+        fr_left_top_left.pack(side='left',fill='both')
+        fr_left_top_left_left = ttk.LabelFrame(master=fr_left_top_left, text='X')
+        fr_left_top_left_left.pack(side='left',fill='both')
+        ttk.Entry(master=fr_left_top_left_left,textvariable=self.cross_polarization_X_variable).pack(side='left',fill='both')
+        fr_left_top_left_left = ttk.LabelFrame(master=fr_left_top_left, text='Y')
+        fr_left_top_left_left.pack(side='left',fill='both')
+        ttk.Entry(master=fr_left_top_left_left,textvariable=self.cross_polarization_Y_variable).pack(side='left',fill='both')
+        fr_left_top_left_left = ttk.LabelFrame(master=fr_left_top_left, text='Z')
+        fr_left_top_left_left.pack(side='left',fill='both')
+        ttk.Entry(master=fr_left_top_left_left,textvariable=self.cross_polarization_Z_variable).pack(side='left',fill='both')
+        
         ttk.Button(master=fr,text='Done',command=self._on_done).pack(side=tk.LEFT,fill=tk.BOTH)
         ttk.Button(master=fr,text='Cancel',command=self.on_cancel).pack(side=tk.LEFT,fill=tk.BOTH)
     
@@ -42,5 +61,8 @@ class AnalysisEditorFrame(tk.Frame):
         self.analysis.config(name=self.name.get(),
                              expression=self.expression.get(),
                              color_expression=self.color_expression.get())
+        self.analysis.cross_polarization_X = self.cross_polarization_X_variable.get()
+        self.analysis.cross_polarization_Y = self.cross_polarization_Y_variable.get()
+        self.analysis.cross_polarization_Z = self.cross_polarization_Z_variable.get()
         
         self.on_done()

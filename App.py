@@ -257,62 +257,62 @@ if __name__=="__main__":
         app.add_antenna(array_H)
         app.add_tab(tab)
         
-        array_V = Array.Array(name='V',
-                              theta=theta,
-                              phi=phi,
-                              antennas=[antenna_3_V.copy() for i in range(4)])
-        array_V.antennas[0].set_current(current_mag=-1)
-        array_V.antennas[0].set_orientation(azimuth=180)
-        array_V.antennas[1].set_current(current_mag=-1)
-        array_V.antennas[1].set_orientation(azimuth=180)
-        array_V.evaluate()
+        # array_V = Array.Array(name='V',
+        #                       theta=theta,
+        #                       phi=phi,
+        #                       antennas=[antenna_3_V.copy() for i in range(4)])
+        # array_V.antennas[0].set_current(current_mag=-1)
+        # array_V.antennas[0].set_orientation(azimuth=180)
+        # array_V.antennas[1].set_current(current_mag=-1)
+        # array_V.antennas[1].set_orientation(azimuth=180)
+        # array_V.evaluate()
         
-        tab = ResultFrame.ResultFrame(master=app.tabs,name='V')
-        result = Result.Result(tab=tab,
-                               name='F',
-                               antenna=array_V,analysis=F,
-                               plot='3d Polar Surface')
-        result = Result.Result(tab=tab,
-                               name='Ftheta',
-                               antenna=array_V,analysis=Ftheta,
-                               plot='2d Polar Patch')
-        result = Result.Result(tab=tab,
-                               name='Fphi',
-                               antenna=array_V,analysis=Fphi,
-                               plot='2d Polar Patch')
+        # tab = ResultFrame.ResultFrame(master=app.tabs,name='V')
+        # result = Result.Result(tab=tab,
+        #                        name='F',
+        #                        antenna=array_V,analysis=F,
+        #                        plot='3d Polar Surface')
+        # result = Result.Result(tab=tab,
+        #                        name='Ftheta',
+        #                        antenna=array_V,analysis=Ftheta,
+        #                        plot='2d Polar Patch')
+        # result = Result.Result(tab=tab,
+        #                        name='Fphi',
+        #                        antenna=array_V,analysis=Fphi,
+        #                        plot='2d Polar Patch')
         
-        app.add_antenna(array_V)
-        app.add_tab(tab)
+        # app.add_antenna(array_V)
+        # app.add_tab(tab)
         
-        array_RHCP = Array.Array(name='RHCP',
-                              theta=theta,
-                              phi=phi,
-                              antennas=[antenna_3_V.copy(),
-                                        antenna_3_H.copy(),
-                                        antenna_3_V.copy(),
-                                        antenna_3_H.copy(),])
-        array_RHCP.antennas[0].set_current(current_mag=-1)
-        array_RHCP.antennas[0].set_orientation(azimuth=180)
-        array_RHCP.antennas[1].set_current(current_mag=-1)
-        array_RHCP.antennas[1].set_orientation(azimuth=180)
-        array_RHCP.evaluate()
+        # array_RHCP = Array.Array(name='RHCP',
+        #                       theta=theta,
+        #                       phi=phi,
+        #                       antennas=[antenna_3_V.copy(),
+        #                                 antenna_3_H.copy(),
+        #                                 antenna_3_V.copy(),
+        #                                 antenna_3_H.copy(),])
+        # array_RHCP.antennas[0].set_current(current_mag=-1)
+        # array_RHCP.antennas[0].set_orientation(azimuth=180)
+        # array_RHCP.antennas[1].set_current(current_mag=-1)
+        # array_RHCP.antennas[1].set_orientation(azimuth=180)
+        # array_RHCP.evaluate()
         
-        tab = ResultFrame.ResultFrame(master=app.tabs,name='RHCP')
-        result = Result.Result(tab=tab,
-                               name='F',
-                               antenna=array_RHCP,analysis=F,
-                               plot='3d Polar Surface')
-        result = Result.Result(tab=tab,
-                               name='Ftheta',
-                               antenna=array_RHCP,analysis=Ftheta,
-                               plot='2d Polar Patch')
-        result = Result.Result(tab=tab,
-                               name='Fphi',
-                               antenna=array_RHCP,analysis=Fphi,
-                               plot='2d Polar Patch')
+        # tab = ResultFrame.ResultFrame(master=app.tabs,name='RHCP')
+        # result = Result.Result(tab=tab,
+        #                        name='F',
+        #                        antenna=array_RHCP,analysis=F,
+        #                        plot='3d Polar Surface')
+        # result = Result.Result(tab=tab,
+        #                        name='Ftheta',
+        #                        antenna=array_RHCP,analysis=Ftheta,
+        #                        plot='2d Polar Patch')
+        # result = Result.Result(tab=tab,
+        #                        name='Fphi',
+        #                        antenna=array_RHCP,analysis=Fphi,
+        #                        plot='2d Polar Patch')
         
-        app.add_antenna(array_RHCP)
-        app.add_tab(tab)
+        # app.add_antenna(array_RHCP)
+        # app.add_tab(tab)
         
         # Main application loop
         app.mainloop()

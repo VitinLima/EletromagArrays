@@ -348,6 +348,7 @@ class Result():
                                                       shading='gouraud',
                                                       cmap='jet')
         plt.colorbar(self.graphical_objects,ax=self.axes)
+        self.axes.set_title(self.name)
     
     def result_menu(self,tw):
         new_menu = tk.Frame(master=tw)
