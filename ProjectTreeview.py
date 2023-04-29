@@ -182,6 +182,7 @@ class ProjectTreeview(ttk.Treeview):
             root.destroy()
             self.obj.name=variable.get()
             self.item(self.selection,text=self.obj.name)
+            self.app.tabs.add(self.obj,text=self.obj.name)
         tk.Button(master=fr,text="OK",command=on_done).pack(side=tk.RIGHT,fill=tk.BOTH)
         root.mainloop()
     
