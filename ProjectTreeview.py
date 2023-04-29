@@ -17,7 +17,8 @@ import Array,ArrayEditorFrame
 import Analysis,AnalysisEditorFrame
 import Optimization,OptimizationEditorFrame
 import ResultFrame
-from Results import Result,ResultEditorFrame
+import Result
+import ResultEditorFrame
 # from Result import Result
 
 class ProjectTreeview(ttk.Treeview):
@@ -30,12 +31,12 @@ class ProjectTreeview(ttk.Treeview):
         self.antennas = dict()
         self.analyses = dict()
         # self.optims = dict()
-        self.result_tabs = dict()
+        self.tabs = dict()
         
         self.antennas_iid = self.insert('', tk.END, text='Antennas')
         self.analyses_iid = self.insert('', tk.END, text='Analyses')
         self.optims_iid = self.insert('', tk.END, text='Optimizations')
-        self.result_tabs_iid = self.insert('', tk.END, text='Tabs')
+        self.tabs_iid = self.insert('', tk.END, text='Tabs')
         
         self.object_iid_map = dict()
         self.iid_object_map = dict()
@@ -49,6 +50,7 @@ class ProjectTreeview(ttk.Treeview):
     
     def create_drop_menu(self, tw, event):
         self.selection = self.identify_row(event.y)
+        self.selection_set(self.selection)
         if self.selection == '':
             return False
         
@@ -59,8 +61,8 @@ class ProjectTreeview(ttk.Treeview):
             self.analyses_menu(tw)
         elif self.selection == self.optims_iid:
             self.optims_menu(tw)
-        elif self.selection == self.result_tabs_iid:
-            self.result_tabs_menu(tw)
+        elif self.selection == self.tabs_iid:
+            self.tabs_menu(tw)
         else:
             self.obj = self.iid_object_map[self.selection]
             obj_type = str(type(self.obj))
@@ -73,7 +75,7 @@ class ProjectTreeview(ttk.Treeview):
             elif obj_type=="<class 'Optimization.Optimization'>":
                 self.optim_menu(tw)
             elif obj_type=="<class 'ResultFrame.ResultFrame'>":
-                self.result_tab_menu(tw)
+                self.tab_menu(tw)
             elif obj_type=="<class 'Result.Result'>":
                 self.result_menu(tw)
             else:
@@ -105,11 +107,11 @@ class ProjectTreeview(ttk.Treeview):
         tk.Button(master=new_menu,text='new optimization',command=self.on_optim_ppp).pack(ipadx=1,fill=tk.BOTH)
         new_menu.pack(ipadx=1)
     
-    def result_tabs_menu(self, tw):
+    def tabs_menu(self, tw):
         new_menu = tk.Frame(master=tw)
         tk.Label(master=new_menu, text='Result tabs', justify='left',
                   relief='solid', borderwidth=0).pack(ipadx=1,fill=tk.BOTH)
-        tk.Button(master=new_menu,text='new tab',command=self.on_new_result_tab).pack(ipadx=1,fill=tk.BOTH)
+        tk.Button(master=new_menu,text='new tab',command=self.on_new_tab).pack(ipadx=1,fill=tk.BOTH)
         tk.Button(master=new_menu,text='update all',command=self.on_update_all_tabs).pack(ipadx=1,fill=tk.BOTH)
         new_menu.pack(ipadx=1)
     
@@ -149,12 +151,13 @@ class ProjectTreeview(ttk.Treeview):
         tk.Button(master=new_menu,text='delete',command=self.on_delete_obj).pack(ipadx=1,fill=tk.BOTH)
         new_menu.pack(ipadx=1)
     
-    def result_tab_menu(self,tw):
+    def tab_menu(self,tw):
         new_menu = tk.Frame(master=tw)
         tk.Label(master=new_menu, text='Results', justify='left',
                   relief='solid', borderwidth=0).pack(ipadx=1,fill=tk.BOTH)
-        # tk.Button(master=new_menu,text='edit',command=self.on_result_tab_ppp).pack(ipadx=1,fill=tk.BOTH)
-        # tk.Button(master=new_menu,text='new result',command=self.on_new_result).pack(ipadx=1,fill=tk.BOTH)
+        # tk.Button(master=new_menu,text='edit',command=self.on_tab_ppp).pack(ipadx=1,fill=tk.BOTH)
+        tk.Button(master=new_menu,text='rename',command=self.on_rename).pack(ipadx=1,fill=tk.BOTH)
+        tk.Button(master=new_menu,text='new result',command=self.on_new_result).pack(ipadx=1,fill=tk.BOTH)
         tk.Button(master=new_menu,text='update',command=self.on_update_all_results).pack(ipadx=1,fill=tk.BOTH)
         tk.Button(master=new_menu,text='delete',command=self.on_delete_obj).pack(ipadx=1,fill=tk.BOTH)
         new_menu.pack(ipadx=1)
@@ -163,10 +166,24 @@ class ProjectTreeview(ttk.Treeview):
         new_menu = tk.Frame(master=tw)
         tk.Label(master=new_menu, text='Results', justify='left',
                   relief='solid', borderwidth=0).pack(ipadx=1,fill=tk.BOTH)
-        tk.Button(master=new_menu,text='edit',command=self.on_result_ppp).pack(ipadx=1,fill=tk.BOTH)
+        tk.Button(master=new_menu,text='edit',command=self.on_new_result).pack(ipadx=1,fill=tk.BOTH)
         tk.Button(master=new_menu,text='update',command=self.on_update_result).pack(ipadx=1,fill=tk.BOTH)
         tk.Button(master=new_menu,text='delete',command=self.on_delete_obj).pack(ipadx=1,fill=tk.BOTH)
         new_menu.pack(ipadx=1)
+    
+    def on_rename(self):
+        self.menu.hidetip()
+        root = tk.Toplevel()
+        variable = tk.StringVar(value=self.obj.name)
+        fr = tk.LabelFrame(master=root,text="Rename " + str(type(self.obj)))
+        fr.pack(side=tk.TOP,fill=tk.BOTH)
+        tk.Entry(master=fr,textvariable=variable).pack(side=tk.LEFT,fill=tk.BOTH)
+        def on_done():
+            root.destroy()
+            self.obj.name=variable.get()
+            self.item(self.selection,text=self.obj.name)
+        tk.Button(master=fr,text="OK",command=on_done).pack(side=tk.RIGHT,fill=tk.BOTH)
+        root.mainloop()
     
     def on_antenna_ppp(self):
         self.menu.hidetip()
@@ -270,54 +287,76 @@ class ProjectTreeview(ttk.Treeview):
         OptimizationEditorFrame.OptimizationEditorFrame(optim=optim,app=self.app,master=root,on_done=on_done,on_cancel=on_cancel).pack()
         root.mainloop()
     
-    def on_new_result_tab(self):
+    def on_new_tab(self):
         self.menu.hidetip()
-        result_tab = ResultFrame.ResultFrame(master=self.app.tabs)
-        self.app.add_result_tab(result_tab)
-        self.item(self.result_tabs_iid,open=True)
+        tab = ResultFrame.ResultFrame(master=self.app.tabs)
+        self.app.add_tab(tab)
+        self.item(self.tabs_iid,open=True)
     
-    def on_result_tab_ppp(self):
+    def on_tab_ppp(self):
         self.menu.hidetip()
         root=tk.Toplevel()
         if self.obj is None:
-            result_tab = ResultFrame.ResultFrame(master=self.app.tabs)
+            tab = ResultFrame.ResultFrame(master=self.app.tabs)
             editing = False
         else:
-            result_tab = self.obj
+            tab = self.obj
             editing = True
         def on_done():
             if not editing:
-                self.app.add_result_tab(result_tab)
+                self.app.add_tab(tab)
             else:
-                self.item(self.selection,text=result_tab.name)
-                self.app.tabs.add(result_tab,text=result_tab.name)
-            self.item(self.result_tabs_iid,open=True)
+                self.item(self.selection,text=tab.name)
+                self.app.tabs.add(tab,text=tab.name)
+            self.item(self.tabs_iid,open=True)
             root.destroy()
         def on_cancel():
             if not editing:
-                result_tab.destroy()
+                tab.destroy()
             root.destroy()
-        ResultEditorFrame.ResultTabEditorFrame(app=self.app,result_tab=result_tab,master=root,on_done=on_done,on_cancel=on_cancel).pack()
+        ResultEditorFrame.ResultEditorFrame(app=self.app,tab=tab,master=root,on_done=on_done,on_cancel=on_cancel).pack()
         root.mainloop()
     
-    # def on_result_ppp(self):
-    #     self.menu.hidetip()
-    #     root=tk.Toplevel()
-    #     if type(self.obj) is ResultFrame:
-    #         result = Result()
-    #         editing = False
-    #     else:
-    #         result = self.obj
-    #         editing = True
-    #     def on_done():
-    #         if not editing:
-    #             self.app.add_result(self.obj, result)
-    #         self.item(self.result_tabs_iid,open=True)
-    #         root.destroy()
-    #     def on_cancel():
-    #         root.destroy()
-    #     ResultEditorFrame(result=result,app=self.app,master=root,on_done=on_done,on_cancel=on_cancel).pack()
-    #     root.mainloop()
+    def on_new_result(self):
+        self.menu.hidetip()
+        root=tk.Toplevel()
+        if str(type(self.obj)) == "<class 'ResultFrame.ResultFrame'>":
+            result = Result.Result(tab=self.obj)
+            editing = False
+        else:
+            result = self.obj
+            editing = True
+        def on_done():
+            if not editing:
+                self.app.add_result(tab=self.obj, result=result)
+            else:
+                self.item(self.selection,text=result.name)
+                # self.app.results.add(result,text=result.name)
+            self.item(self.object_iid_map[self.obj],open=True)
+            root.destroy()
+        def on_cancel():
+            root.destroy()
+        ResultEditorFrame.ResultEditorFrame(app=self.app,result=result,master=root,on_done=on_done,on_cancel=on_cancel).pack()
+        root.mainloop()
+    
+    def on_result_ppp(self):
+        self.menu.hidetip()
+        root=tk.Toplevel()
+        if type(self.obj) is ResultFrame:
+            result = Result()
+            editing = False
+        else:
+            result = self.obj
+            editing = True
+        def on_done():
+            if not editing:
+                self.app.add_result(self.obj, result)
+            self.item(self.tabs_iid,open=True)
+            root.destroy()
+        def on_cancel():
+            root.destroy()
+        ResultEditorFrame.ResultEditorFrame(result=result,app=self.app,master=root,on_done=on_done,on_cancel=on_cancel).pack()
+        root.mainloop()
     
     def on_delete_obj(self):
         self.menu.hidetip()
@@ -336,10 +375,9 @@ class ProjectTreeview(ttk.Treeview):
             self.delete_optim(self.obj)
         elif obj_type=="<class 'ResultFrame.ResultFrame'>":
             self.app.tabs.forget(self.obj)
-            self.delete_result_tab(self.obj)
-        # elif obj_type=="<class 'Result.Result'>":
-        #     result_tab = self.iid_object_map[self.parent(self.selection)]
-        #     self.delete_result(result_tab, self.obj)
+            self.delete_tab(self.obj)
+        elif obj_type=="<class 'Result.Result'>":
+            self.delete_result(self.obj)
     
     def add_antenna(self, antenna):
         iid = self.insert(self.antennas_iid, tk.END, text=antenna.name)
@@ -356,22 +394,22 @@ class ProjectTreeview(ttk.Treeview):
         self.iid_object_map[iid] = optim
         self.object_iid_map[optim] = iid
     
-    def add_result_tab(self, result_tab):
-        iid = self.insert(self.result_tabs_iid, tk.END, text=result_tab.name)
-        self.iid_object_map[iid] = result_tab
-        self.object_iid_map[result_tab] = iid
-        # for result in result_tab.results:
+    def add_tab(self, tab):
+        iid = self.insert(self.tabs_iid, tk.END, text=tab.name)
+        self.iid_object_map[iid] = tab
+        self.object_iid_map[tab] = iid
+        # for result in tab.results:
         #     result_iid = self.insert(iid, tk.END, text=result.name)
         #     self.iid_object_map[result_iid] = result
         #     self.object_iid_map[result] = result_iid
     
-    def add_result(self, result_tab, result):
-        result_tab.add_result(result)
-        result.axes = result_tab.current_axes
-        result.update()
+    def add_result(self, tab, result):
+        # tab.add_result(result)
+        # result.axes = tab.current_axes
+        # result.update()
         
-        result_tab_iid = self.object_iid_map[result_tab]
-        result_iid = self.insert(result_tab_iid, tk.END, text=result.name)
+        tab_iid = self.object_iid_map[tab]
+        result_iid = self.insert(tab_iid, tk.END, text=result.name)
         self.iid_object_map[result_iid] = result
         self.object_iid_map[result] = result_iid
     
@@ -393,23 +431,21 @@ class ProjectTreeview(ttk.Treeview):
         self.iid_object_map.pop(iid)
         self.delete(iid)
     
-    def delete_result_tab(self, result_tab):
-        iid = self.object_iid_map[result_tab]
-        # for result in result_tab.results:
-        #     self.delete_result(result_tab, result)
-        self.object_iid_map.pop(result_tab)
+    def delete_tab(self, tab):
+        iid = self.object_iid_map[tab]
+        for result in tab.results:
+            self.delete_result(result)
+        self.object_iid_map.pop(tab)
         self.iid_object_map.pop(iid)
         self.delete(iid)
     
-    # def delete_result(self, result_tab, result):
-    #     self.app.result_tabs.remove(result_tab)
-    #     result.undraw()
-    #     result_tab.results.remove(result)
+    def delete_result(self, result):
+        result.tab.remove_result(result)
         
-    #     iid = self.object_iid_map[result]
-    #     self.object_iid_map.pop(result)
-    #     self.iid_object_map.pop(iid)
-    #     self.delete(iid)
+        iid = self.object_iid_map[result]
+        self.object_iid_map.pop(result)
+        self.iid_object_map.pop(iid)
+        self.delete(iid)
     
     def on_update_antenna(self):
         self.menu.hidetip()
@@ -417,6 +453,7 @@ class ProjectTreeview(ttk.Treeview):
     
     def on_update_result(self):
         self.menu.hidetip()
+        self.obj.ok = False
         self.obj.update()
     
     def on_update_all_antennas(self):
@@ -426,15 +463,15 @@ class ProjectTreeview(ttk.Treeview):
     
     def on_update_all_tabs(self):
         self.menu.hidetip()
-        for tab in self.app.result_tabs:
-            # for result in tab.results:
-            #     result.update()
-            tab.canvas.draw()
+        for tab in self.app.tabs:
+            tab.ok = False
+            tab.update()
+            # tab.canvas.draw()
     
     def on_update_all_results(self):
         self.menu.hidetip()
-        # for result in self.obj.results:
-        #     result.update()
+        self.obj.ok = False
+        self.obj.update()
     
     def on_run_optim(self):
         self.obj.run()

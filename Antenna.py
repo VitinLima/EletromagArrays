@@ -5,6 +5,8 @@ Created on Sun Feb 26 17:48:55 2023
 @author: Vítor Lima Aguirra
 """
 
+import pickle
+
 import numpy as np
 import csv
 from scipy.interpolate import RegularGridInterpolator
@@ -551,3 +553,6 @@ if __name__=='__main__':
         antenna.evaluation_arguments['load mesh from file'] = True
         antenna.evaluate()
     
+    def export_to_file(self, filename):
+        with open(filename, mode='wb') as f:
+            pickle.dump(self, f)

@@ -98,13 +98,15 @@ class App(tk.Tk):
         self.optims.append(optim)
         self.treeview.add_optim(optim)
     
-    def add_result_tab(self, result_tab):
-        self.result_tabs.append(result_tab)
-        self.treeview.add_result_tab(result_tab)
-        self.tabs.add(result_tab,text=result_tab.name)
+    def add_tab(self, tab):
+        self.result_tabs.append(tab)
+        self.treeview.add_tab(tab)
+        self.tabs.add(tab,text=tab.name)
+        for result in tab.results:
+            self.add_result(tab, result)
     
-    def add_result(self, result_tab, result):
-        self.treeview.add_result(result_tab, result)
+    def add_result(self, tab, result):
+        self.treeview.add_result(tab, result)
     
     def remove_antenna(self, antenna):
         self.antennas.remove(antenna)
@@ -118,13 +120,13 @@ class App(tk.Tk):
         self.optims.remove(optim)
         self.treeview.remove_optim(optim)
     
-    def remove_result_tab(self, result_tab):
-        self.result_tabs.remove(result_tab)
-        self.treeview.remove_result_tab(result_tab)
+    def remove_tab(self, tab):
+        self.tabs.remove(tab)
+        self.treeview.remove_tab(tab)
     
-    def remove_result(self, result_tab, result):
-        result_tab.results.remove(result)
-        self.treeview.remove_result(result_tab, result)
+    def remove_result(self, tab, result):
+        tab.results.remove(result)
+        self.treeview.remove_result(tab, result)
     
     def new_file(self):
         print("new file")
@@ -181,9 +183,9 @@ class App(tk.Tk):
             if not array.ok:
                 array.evaluate()
         
-        for result_tab in self.result_tabs:
-            if not result_tab.ok:
-                result_tab.update()
+        for tab in self.result_tabs:
+            if not tab.ok:
+                tab.update()
         
         self.after(2000,self.updater_thread)
 
@@ -196,58 +198,25 @@ if __name__=="__main__":
     import Analysis
     # import Optimization
     import ResultFrame
+    import Result
+    import LoadDefaultAntennas
+    
+    theta=np.linspace(0, 90, 31)
+    phi=np.linspace(-180, 180, 91)
+    antenna_1_H,antenna_2_H,antenna_3_H,antenna_4_H,antenna_1_V,antenna_2_V,antenna_3_V,antenna_4_V = LoadDefaultAntennas.load_default_antennas(elevation=-45)
 
     # Create the application
     app = App()
     try:
         antennas_dir = 'C:\\Users\\160047412\\OneDrive - unb.br\\LoraAEB\\Antennas'
-        
-        # isotropic = Antenna(app.constants,name='Ideal isotropic antenna')
-        # isotropic.set_evaluation_method('isotropic')
-        # isotropic.evaluation_arguments['isotropic on'] = 'theta'
-        # isotropic.evaluate()
-        
-        # dipole = Antenna(app.constants,name='Ideal dipole')
-        # dipole.evaluate()
-        
-        antenna_path = os.path.join(antennas_dir, 'antenna-Dipole.csv')
-        antenna_1 = Antenna.Antenna(app.constants,name='Dipole antenna')
-        antenna_1.set_evaluation_method('load file')
-        antenna_1.evaluation_arguments['file path'] = antenna_path
-        antenna_1.evaluation_arguments['load mesh from file'] = False
-        antenna_1.set_orientation(elevation=0,azimuth=0)
-        antenna_1.evaluate()
-        
-        antenna_path = os.path.join(antennas_dir, 'antenna-Yagi-2Elements.csv')
-        antenna_2 = Antenna.Antenna(app.constants,name='Yagi 2 elements')
-        antenna_2.set_evaluation_method('load file')
-        antenna_2.evaluation_arguments['file path'] = antenna_path
-        antenna_2.evaluation_arguments['load mesh from file'] = False
-        antenna_2.set_orientation(elevation=-90)
-        antenna_2.evaluate()
-        
-        antenna_path = os.path.join(antennas_dir, 'antenna-Yagi-3Elements.csv')
-        antenna_3 = Antenna.Antenna(app.constants,name='Yagi 3 elements')
-        antenna_3.set_evaluation_method('load file')
-        antenna_3.evaluation_arguments['file path'] = antenna_path
-        antenna_3.evaluation_arguments['load mesh from file'] = False
-        antenna_3.set_orientation(elevation=-90)
-        antenna_3.evaluate()
-        
-        antenna_path = os.path.join(antennas_dir, 'antenna-Yagi-4Elements.csv')
-        antenna_4 = Antenna.Antenna(app.constants,name='Yagi 4 elements')
-        antenna_4.set_evaluation_method('load file')
-        antenna_4.evaluation_arguments['file path'] = antenna_path
-        antenna_4.evaluation_arguments['load mesh from file'] = False
-        antenna_4.set_orientation(elevation=0)
-        antenna_4.evaluate()
-        
-        # app.add_antenna(isotropic)
-        # app.add_antenna(dipole)
-        app.add_antenna(antenna_1)
-        app.add_antenna(antenna_2)
-        app.add_antenna(antenna_3)
-        app.add_antenna(antenna_4)
+        app.add_antenna(antenna_1_H)
+        app.add_antenna(antenna_1_V)
+        app.add_antenna(antenna_2_H)
+        app.add_antenna(antenna_2_V)
+        app.add_antenna(antenna_3_H)
+        app.add_antenna(antenna_3_V)
+        app.add_antenna(antenna_4_H)
+        app.add_antenna(antenna_4_V)
         
         F = Analysis.Analysis(name='F',expression='F')
         Ftheta = Analysis.Analysis(name='Ftheta',expression='Ftheta',color_expression='')
@@ -261,54 +230,89 @@ if __name__=="__main__":
         app.add_analysis(Frhcp)
         app.add_analysis(Flhcp)
         
-        theta=np.linspace(0,180,91)
-        phi=np.linspace(-180,180,91)
+        array_H = Array.Array(name='H',
+                              theta=theta,
+                              phi=phi,
+                              antennas=[antenna_3_H.copy() for i in range(4)])
+        array_H.antennas[0].set_current(current_mag=-1)
+        array_H.antennas[0].set_orientation(azimuth=180)
+        array_H.antennas[1].set_current(current_mag=-1)
+        array_H.antennas[1].set_orientation(azimuth=180)
+        array_H.evaluate()
         
-        # filedir = 'Optimization Results Theta'
-        # filename = os.path.join(filedir,'best array with 1 antenna and cost 355.4455867999418.dat')
-        # # filename = os.path.join(filedir,'best array with 2 antenna and cost 167.3758780615933.dat')
-        # # filename = os.path.join(filedir,'best array with 3 antenna and cost 167.3758780615933.dat')
-        # with open(filename, 'rb') as f:
-        #     array_theta = pickle.load(f)
-        # app.add_antenna(array_theta)
-        # array_theta.name = "Array theta"
-
-        # filedir = 'Optimization Results Phi'
-        # filename = os.path.join(filedir,'best array with 1 antenna and cost 1134.8675783045935.dat')
-        # # filename = os.path.join(filedir,'best array with 2 antenna and cost 206.2206481490366.dat')
-        # # filename = os.path.join(filedir,'best array with 3 antenna and cost 167.3758780615933.dat')
-        # with open(filename, 'rb') as f:
-        #     array_phi = pickle.load(f)
-        #     array_phi.name = "Array phi"
-        # app.add_antenna(array_phi)
+        tab = ResultFrame.ResultFrame(master=app.tabs,name='H')
+        result = Result.Result(tab=tab,
+                               name='F',
+                               antenna=array_H,analysis=F,
+                               plot='3d Polar Surface')
+        result = Result.Result(tab=tab,
+                               name='Ftheta',
+                               antenna=array_H,analysis=Ftheta,
+                               plot='2d Polar Patch')
+        result = Result.Result(tab=tab,
+                               name='Fphi',
+                               antenna=array_H,analysis=Fphi,
+                               plot='2d Polar Patch')
         
-        # array_rhcp = Array(app.constants,name='Array rhcp',
-        #               theta=theta.copy(),phi=phi.copy(),
-        #               current_mirror=True,
-        #               y_symmetry=True,
-        #               y_mirror=True,
-        #               x_mirror=True)
-        # array_rhcp.add_antenna(array_theta)
-        # array_rhcp.add_antenna(array_phi)
-        # array_rhcp.antennas[1].set_position(y=1.5)
-        # array_rhcp.antennas[1].set_current(current_phase=90)
-        # array_rhcp.evaluate()
-        # app.add_antenna(array_rhcp)
+        app.add_antenna(array_H)
+        app.add_tab(tab)
         
-        # result_tab = ResultFrame(master=app.tabs,name='Array theta',
-        #                           antenna=array_theta,analysis=F,
-        #                           plot='2d Polar Patch')
-        # app.add_result_tab(result_tab)
+        array_V = Array.Array(name='V',
+                              theta=theta,
+                              phi=phi,
+                              antennas=[antenna_3_V.copy() for i in range(4)])
+        array_V.antennas[0].set_current(current_mag=-1)
+        array_V.antennas[0].set_orientation(azimuth=180)
+        array_V.antennas[1].set_current(current_mag=-1)
+        array_V.antennas[1].set_orientation(azimuth=180)
+        array_V.evaluate()
         
-        # result_tab = ResultFrame(master=app.tabs,name='Array phi',
-        #                           antenna=array_phi,analysis=F,
-        #                           plot='2d Polar Patch')
-        # app.add_result_tab(result_tab)
+        tab = ResultFrame.ResultFrame(master=app.tabs,name='V')
+        result = Result.Result(tab=tab,
+                               name='F',
+                               antenna=array_V,analysis=F,
+                               plot='3d Polar Surface')
+        result = Result.Result(tab=tab,
+                               name='Ftheta',
+                               antenna=array_V,analysis=Ftheta,
+                               plot='2d Polar Patch')
+        result = Result.Result(tab=tab,
+                               name='Fphi',
+                               antenna=array_V,analysis=Fphi,
+                               plot='2d Polar Patch')
         
-        # result_tab = ResultFrame(master=app.tabs,name='Array rhcp',
-        #                           antenna=array_rhcp,analysis=Frhcp,
-        #                           plot='2d Polar Patch')
-        # app.add_result_tab(result_tab)
+        app.add_antenna(array_V)
+        app.add_tab(tab)
+        
+        array_RHCP = Array.Array(name='RHCP',
+                              theta=theta,
+                              phi=phi,
+                              antennas=[antenna_3_V.copy(),
+                                        antenna_3_H.copy(),
+                                        antenna_3_V.copy(),
+                                        antenna_3_H.copy(),])
+        array_RHCP.antennas[0].set_current(current_mag=-1)
+        array_RHCP.antennas[0].set_orientation(azimuth=180)
+        array_RHCP.antennas[1].set_current(current_mag=-1)
+        array_RHCP.antennas[1].set_orientation(azimuth=180)
+        array_RHCP.evaluate()
+        
+        tab = ResultFrame.ResultFrame(master=app.tabs,name='RHCP')
+        result = Result.Result(tab=tab,
+                               name='F',
+                               antenna=array_RHCP,analysis=F,
+                               plot='3d Polar Surface')
+        result = Result.Result(tab=tab,
+                               name='Ftheta',
+                               antenna=array_RHCP,analysis=Ftheta,
+                               plot='2d Polar Patch')
+        result = Result.Result(tab=tab,
+                               name='Fphi',
+                               antenna=array_RHCP,analysis=Fphi,
+                               plot='2d Polar Patch')
+        
+        app.add_antenna(array_RHCP)
+        app.add_tab(tab)
         
         # Main application loop
         app.mainloop()

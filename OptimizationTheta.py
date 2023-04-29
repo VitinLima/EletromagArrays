@@ -24,7 +24,7 @@ Fphi = Analysis.Analysis(name='Fphi',expression='Fphi',color_expression='')
 Frhcp = Analysis.Analysis(name='Frhcp',expression='Frhcp',color_expression='')
 Flhcp = Analysis.Analysis(name='Flhcp',expression='Flhcp',color_expression='')
     
-target_distribution_theta = Antenna.Antenna(name='Target Phi',
+target_distribution_theta = Antenna.Antenna(name='Target Theta',
                               theta=theta.copy(),
                               phi=phi.copy())
 target_distribution_theta.evaluate_as = 'expressions'
@@ -36,7 +36,7 @@ target_distribution_theta.evaluate()
 # weight_mask = np.ones(target_distribution_theta.shape)
 # weight_mask[target_distribution_theta.mesh_theta>np.pi/2] = 0.5
 
-optim_theta = SpecialOptim.SpecialOptim(
+optim = SpecialOptim.SpecialOptim(
                      available_antennas = [
                                 # antenna_1_H,
                                 antenna_2_H,
@@ -57,7 +57,7 @@ optim_theta = SpecialOptim.SpecialOptim(
                             # 'y',
                             # 'z',
                             # 'current magnitude',
-                            # 'current phase',
+                            'current phase',
                          ],
                      N_start = 1,
                      N_stop = 3,
@@ -67,19 +67,19 @@ optim_theta = SpecialOptim.SpecialOptim(
                      )
 
 try:
-    optim_theta.run()
+    optim.run()
 finally:
-    for k in optim_theta.best_results.keys():
-        result = optim_theta.best_results[k]
+    for k in optim.best_results.keys():
+        result = optim.best_results[k]
         filename = os.path.join('Optimization Results Theta','best array with {N} antenna and cost {cost}.dat'.format(N=k, cost=result.cost))
         with open(filename, mode='wb') as f:
             pickle.dump(result.working_array, f)
 
-array_theta = optim_theta.best_result.working_array
-print('final cost: {}'.format(optim_theta.best_result.cost))
-print('working theta array have {N} antennas:'.format(N=len(array_theta.antennas)))
-for i in range(len(array_theta.antennas)):
-    antenna = array_theta.antennas[i]
+array = optim.best_result.working_array
+print('final cost: {}'.format(optim.best_result.cost))
+print('working theta array have {N} antennas:'.format(N=len(array.antennas)))
+for i in range(len(array.antennas)):
+    antenna = array.antennas[i]
     print('\tantenna {i}: '.format(i=i) + antenna.name)
     print('\t\televation: {e}'.format(e=antenna.elevation))
     print('\t\tazimuth: {a}'.format(a=antenna.azimuth))
@@ -94,10 +94,11 @@ for i in range(len(array_theta.antennas)):
 
 import App
 import ResultFrame
+import Result
 
 app = App.App()
 try:
-    app.add_antenna(array_theta)
+    app.add_antenna(array)
     app.add_antenna(target_distribution_theta)
     
     app.add_analysis(F)
@@ -106,10 +107,13 @@ try:
     app.add_analysis(Frhcp)
     app.add_analysis(Flhcp)
     
-    result_tab = ResultFrame.ResultFrame(master=app.tabs,name='Array Theta',
-                             antenna=array_theta,analysis=F,
-                             plot='2d Polar Patch')
-    app.add_result_tab(result_tab)
+    tab = ResultFrame.ResultFrame(master=app.tabs)
+    result = Result.Result(tab=tab,
+                    name='Array Theta',
+                    antenna=array,analysis=F,
+                    plot='2d Polar Patch')
+    app.add_tab(tab)
+    app.treeview.add_result(tab, result)
     
     # Main application loop
     app.mainloop()

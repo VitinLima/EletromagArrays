@@ -75,7 +75,7 @@ class Optimization:
         
         total_cost = 0
         for analysis,weights,evaluated_analysis in zip(self.analyses,self.weights,self.evaluated_analyses):
-            C = self.weight_mask*(np.abs(analysis.evaluate_field(self.working_array)) - abs(evaluated_analysis))
+            C = self.weight_mask*(np.abs(analysis.evaluate_field(self.working_array)) - evaluated_analysis)
             total_cost += weights*np.abs(C).sum()
         if self.disp:
             print('evaluated with ' + str(x) + ' cost ' + str(total_cost))
@@ -92,7 +92,7 @@ class Optimization:
         if self.weights is None:
             self.weights=np.ones((len(self.analyses)))
         
-        self.evaluated_analyses = [analysis.evaluate_field(self.target_antenna) for analysis in self.analyses]
+        self.evaluated_analyses = [np.abs(analysis.evaluate_field(self.target_antenna)) for analysis in self.analyses]
         self.working_x_map = []
         x=[]
         bounds=[]

@@ -140,7 +140,7 @@ class ArrayEditorFrame(tk.Frame):
         self.current_editing_antenna = ([antenna for antenna in self.antennas])[selection[0]]
         if str(self.current_editing_antenna.EditorFrame) == "<class 'AntennaEditorFrame.AntennaEditorFrame'>":
             self.current_editing_frame = AntennaEditorFrame.AntennaEditorFrame(antenna=self.current_editing_antenna,on_finish=False,master=self.edit_antenna_frame)
-        elif str(self.current_editing_antenna.EditorFrame) == "<class 'ArrayEditorFrame..ArrayEditorFrame'>":
+        elif str(self.current_editing_antenna.EditorFrame) == "<class 'ArrayEditorFrame.ArrayEditorFrame'>":
             self.current_editing_frame = ArrayEditorFrame(array=self.current_editing_antenna,app=self.app,on_finish=False,master=self.edit_antenna_frame)
         self.current_editing_frame.pack(side='left',fill='both')
         self.edit_antenna_frame.pack(side='left',fill='both')

@@ -9,8 +9,8 @@ import numpy as np
 import scipy.optimize
 import itertools
 
-from AntennaTbx.Array import Array
-from AntennaTbx.Optimization import Optimization
+from Array import Array
+from Optimization import Optimization
 
 class MultiAntennaOptimization:
     def __init__(self,
@@ -93,19 +93,19 @@ if __name__=='__main__':
     import os
     import pickle
 
-    from AntennaTbx.Antenna import Antenna
-    from AntennaTbx.Analysis import Analysis
+    from Antenna import Antenna
+    from Analysis import Analysis
     import LoadDefaultAntennas
     
     theta=np.linspace(0, 180, 91)
     phi=np.linspace(-180, 180, 91)
-    antenna_1_H,antenna_2_H,antenna_3_H,antenna_4_H,antenna_1_V,antenna_2_V,antenna_3_V,antenna_4_V = LoadDefaultAntennas.load_default_antennas()
+    antenna_1_H,antenna_2_H,antenna_3_H,antenna_4_H,antenna_1_V,antenna_2_V,antenna_3_V,antenna_4_V = LoadDefaultAntennas.load_default_antennas(elevation=-45)
     
     F = Analysis(name='F',expression='F')
     Ftheta = Analysis(name='Ftheta',expression='Ftheta',color_expression='')
     Fphi = Analysis(name='Fphi',expression='Fphi',color_expression='')
-    Frhcp = Analysis(name='Frhcp',expression='abs(Frhcp)',color_expression='')
-    Flhcp = Analysis(name='Flhcp',expression='abs(Flhcp)',color_expression='')
+    Frhcp = Analysis(name='Frhcp',expression='Frhcp',color_expression='')
+    Flhcp = Analysis(name='Flhcp',expression='Flhcp',color_expression='')
     
     target_distribution_rhcp = Antenna( name='Target rhcp',
                                   theta=theta.copy(),
@@ -132,11 +132,11 @@ if __name__=='__main__':
                          available_antennas = [
                                     # antenna_1_H,
                                     # antenna_2_H,
-                                    antenna_3_H,
+                                    # antenna_3_H,
                                     antenna_4_H,
                                     # antenna_1_V,
                                     # antenna_2_V,
-                                    antenna_3_V,
+                                    # antenna_3_V,
                                     antenna_4_V
                              ],
                          analyses = [
@@ -149,13 +149,13 @@ if __name__=='__main__':
                                 'elevation',
                                 # 'azimuth',
                                 # 'x',
-                                # 'y',
+                                'y',
                                 # 'z',
                                 'current magnitude',
                                 # 'current phase',
                              ],
-                         N_start = 2,
-                         N_stop = 2,
+                         N_start = 4,
+                         N_stop = 4,
                          # weight_mask=weight_mask,
                          # method = 'L-BFGS-B'
                          )
@@ -187,7 +187,8 @@ if __name__=='__main__':
     # os.system('shutdown /h')
     
     from App import App
-    from AntennaTbx.ResultFrame import ResultFrame
+    import ResultFrame
+    import Result
     
     app = App()
     try:
@@ -207,10 +208,12 @@ if __name__=='__main__':
         app.add_analysis(Frhcp)
         app.add_analysis(Flhcp)
         
-        result_tab = ResultFrame(master=app.tabs,name='Array RHCP',
-                                 antenna=array,analysis=F,
-                                 plot='2d Polar Patch')
-        app.add_result_tab(result_tab)
+        tab = ResultFrame.ResultFrame(master=app.tabs)
+        result = Result.Result(tab=tab,
+                        name='Array RHCP',
+                        antenna=array,analysis=F,
+                        plot='2d Polar Patch')
+        app.add_tab(tab)
         
         # Main application loop
         app.mainloop()
