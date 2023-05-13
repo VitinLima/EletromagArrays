@@ -47,9 +47,16 @@ class Antenna:
         
         self.mesh_phi,self.mesh_theta = np.meshgrid(np.radians(self.phi),np.radians(self.theta))
         self.shape = (self.theta.size, self.phi.size)
+        
         self.F = np.zeros(self.shape)
         self.Fphi = np.zeros(self.shape, dtype=np.csingle)
         self.Ftheta = np.zeros(self.shape, dtype=np.csingle)
+        self.Frhcp = np.zeros(self.shape, dtype=np.csingle)
+        self.Flhcp = np.zeros(self.shape, dtype=np.csingle)
+        self.Fx = np.zeros(self.shape, dtype=np.csingle)
+        self.Fy = np.zeros(self.shape, dtype=np.csingle)
+        self.Fz = np.zeros(self.shape, dtype=np.csingle)
+        
         self.listeners = []
         self.antenna_size = .5
         self.silent=False
@@ -142,6 +149,11 @@ class Antenna:
         self.F = np.zeros(self.shape)
         self.Fphi = np.zeros(self.shape, dtype=np.csingle)
         self.Ftheta = np.zeros(self.shape, dtype=np.csingle)
+        self.Frhcp = np.zeros(self.shape, dtype=np.csingle)
+        self.Flhcp = np.zeros(self.shape, dtype=np.csingle)
+        self.Fx = np.zeros(self.shape, dtype=np.csingle)
+        self.Fy = np.zeros(self.shape, dtype=np.csingle)
+        self.Fz = np.zeros(self.shape, dtype=np.csingle)
         
         self.Relevation_flag = True
         self.Razimuth_flag = True
@@ -407,6 +419,11 @@ class Antenna:
         self.Frhcp = (self.Ftheta - 1j*self.Fphi)/MyMath.sqrt2
         self.Flhcp = (self.Ftheta + 1j*self.Fphi)/MyMath.sqrt2
         
+        vector_F = self.Ftheta[:,:,np.newaxis]*self.hat_theta + self.Fphi[:,:,np.newaxis]*self.hat_phi
+        self.Fx = vector_F[:,:,0]
+        self.Fy = vector_F[:,:,1]
+        self.Fz = vector_F[:,:,2]
+        
         self.ok = True
         self.mark_update('evaluated')
     
@@ -512,11 +529,15 @@ class Antenna:
         antenna.local_Fphi = self.local_Fphi.copy()
         antenna.local_Frhcp = self.local_Frhcp.copy()
         antenna.local_Flhcp = self.local_Flhcp.copy()
+        
         antenna.F = self.F.copy()
         antenna.Ftheta = self.Ftheta.copy()
         antenna.Fphi = self.Fphi.copy()
         antenna.Frhcp = self.Frhcp.copy()
         antenna.Flhcp = self.Flhcp.copy()
+        antenna.Fx = self.Fx.copy()
+        antenna.Fy = self.Fy.copy()
+        antenna.Fz = self.Fz.copy()
         
         antenna.local_mesh_flag = self.local_mesh_flag
         antenna.R_flag = self.R_flag

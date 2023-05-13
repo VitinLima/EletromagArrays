@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Apr 23 00:43:16 2023
+Created on Sat May 13 13:46:04 2023
 
 @author: 160047412
 """
@@ -10,7 +10,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-class Result():
+class FieldResult():
     available_plots = ['2d Graph','2d Contour','3d Surface','2d Polar Graph', '2d Polar Contour', '2d Polar Patch', '3d Polar Surface','3d Polar']
     available_fields = ['F', 'Ftheta', 'Fphi', 'Frhcp', 'Flhcp', 'Fref', 'Fcross', 'Fc']
     # plot_projections = ['2d', '2d', '2d', '3d', '2d', '2d', ]

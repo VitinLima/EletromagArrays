@@ -16,11 +16,6 @@ class Analysis:
         self.expression=expression
         self.color_expression=color_expression
         
-        self.cross_polarization_X = 0.0
-        self.cross_polarization_Y = 0.0
-        self.cross_polarization_Z = 1.0
-        self.domain = None
-        
         self.listeners = []
         self.ok = True
     
@@ -53,6 +48,12 @@ class Analysis:
                 field = np.absolute(antenna.Frhcp)
             elif self.expression=='Flhcp':
                 field = np.absolute(antenna.Flhcp)
+            elif self.expression=='Fx':
+                field = np.absolute(antenna.Fx)
+            elif self.expression=='Fy':
+                field = np.absolute(antenna.Fy)
+            elif self.expression=='Fz':
+                field = np.absolute(antenna.Fz)
             elif self.expression=='D':
                 field = antenna.F
             elif self.expression=='Dtheta':

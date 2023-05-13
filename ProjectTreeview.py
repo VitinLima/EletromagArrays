@@ -464,7 +464,7 @@ class ProjectTreeview(ttk.Treeview):
     
     def on_update_all_tabs(self):
         self.menu.hidetip()
-        for tab in self.app.tabs:
+        for tab in self.app.result_tabs:
             tab.ok = False
             tab.update()
             # tab.canvas.draw()

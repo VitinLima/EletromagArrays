@@ -190,128 +190,134 @@ class App(tk.Tk):
         self.after(2000,self.updater_thread)
 
 if __name__=="__main__":
-    import os
-    import pickle
     
-    import Antenna
-    import Array
-    import Analysis
-    # import Optimization
-    import ResultFrame
-    import Result
-    import LoadDefaultAntennas
-    
-    theta=np.linspace(0, 90, 31)
-    phi=np.linspace(-180, 180, 91)
-    antenna_1_H,antenna_2_H,antenna_3_H,antenna_4_H,antenna_1_V,antenna_2_V,antenna_3_V,antenna_4_V = LoadDefaultAntennas.load_default_antennas(elevation=-45)
-
     # Create the application
     app = App()
     try:
-        antennas_dir = 'C:\\Users\\160047412\\OneDrive - unb.br\\LoraAEB\\Antennas'
-        app.add_antenna(antenna_1_H)
-        app.add_antenna(antenna_1_V)
-        app.add_antenna(antenna_2_H)
-        app.add_antenna(antenna_2_V)
-        app.add_antenna(antenna_3_H)
-        app.add_antenna(antenna_3_V)
-        app.add_antenna(antenna_4_H)
-        app.add_antenna(antenna_4_V)
+        import LoadDefaultAntennas
+        antennas = LoadDefaultAntennas.load_default_antennas(Ntheta=91, Nphi=91)
+        for antenna in antennas.values():
+            app.add_antenna(antenna)
+        # import LoadDefaultAnalyses
+        # analyses = LoadDefaultAnalyses.load_default_analyses()
+        # for analysis in analyses.values():
+        #     app.add_analysis(analysis)
         
-        F = Analysis.Analysis(name='F',expression='F')
-        Ftheta = Analysis.Analysis(name='Ftheta',expression='Ftheta',color_expression='')
-        Fphi = Analysis.Analysis(name='Fphi',expression='Fphi',color_expression='')
-        Frhcp = Analysis.Analysis(name='Frhcp',expression='Frhcp',color_expression='')
-        Flhcp = Analysis.Analysis(name='Flhcp',expression='Flhcp',color_expression='')
+        import ResultFrame
+        import LoadDefaultGraphs
+        import LoadCompareAntennas
         
-        app.add_analysis(F)
-        app.add_analysis(Ftheta)
-        app.add_analysis(Fphi)
-        app.add_analysis(Frhcp)
-        app.add_analysis(Flhcp)
-        
-        array_H = Array.Array(name='H',
-                              theta=theta,
-                              phi=phi,
-                              antennas=[antenna_3_H.copy() for i in range(4)])
-        array_H.antennas[0].set_current(current_mag=-1)
-        array_H.antennas[0].set_orientation(azimuth=180)
-        array_H.antennas[1].set_current(current_mag=-1)
-        array_H.antennas[1].set_orientation(azimuth=180)
-        array_H.evaluate()
-        
-        tab = ResultFrame.ResultFrame(master=app.tabs,name='H')
-        result = Result.Result(tab=tab,
-                               name='F',
-                               antenna=array_H,analysis=F,
-                               plot='3d Polar Surface')
-        result = Result.Result(tab=tab,
-                               name='Ftheta',
-                               antenna=array_H,analysis=Ftheta,
-                               plot='2d Polar Patch')
-        result = Result.Result(tab=tab,
-                               name='Fphi',
-                               antenna=array_H,analysis=Fphi,
-                               plot='2d Polar Patch')
-        
-        app.add_antenna(array_H)
-        app.add_tab(tab)
-        
-        # array_V = Array.Array(name='V',
-        #                       theta=theta,
-        #                       phi=phi,
-        #                       antennas=[antenna_3_V.copy() for i in range(4)])
-        # array_V.antennas[0].set_current(current_mag=-1)
-        # array_V.antennas[0].set_orientation(azimuth=180)
-        # array_V.antennas[1].set_current(current_mag=-1)
-        # array_V.antennas[1].set_orientation(azimuth=180)
-        # array_V.evaluate()
-        
-        # tab = ResultFrame.ResultFrame(master=app.tabs,name='V')
-        # result = Result.Result(tab=tab,
-        #                        name='F',
-        #                        antenna=array_V,analysis=F,
-        #                        plot='3d Polar Surface')
-        # result = Result.Result(tab=tab,
-        #                        name='Ftheta',
-        #                        antenna=array_V,analysis=Ftheta,
-        #                        plot='2d Polar Patch')
-        # result = Result.Result(tab=tab,
-        #                        name='Fphi',
-        #                        antenna=array_V,analysis=Fphi,
-        #                        plot='2d Polar Patch')
-        
-        # app.add_antenna(array_V)
+        # tab = ResultFrame.ResultFrame(master=app.tabs,name='H')
+        # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=antennas['array_H'])
         # app.add_tab(tab)
         
-        # array_RHCP = Array.Array(name='RHCP',
-        #                       theta=theta,
-        #                       phi=phi,
-        #                       antennas=[antenna_3_V.copy(),
-        #                                 antenna_3_H.copy(),
-        #                                 antenna_3_V.copy(),
-        #                                 antenna_3_H.copy(),])
-        # array_RHCP.antennas[0].set_current(current_mag=-1)
-        # array_RHCP.antennas[0].set_orientation(azimuth=180)
-        # array_RHCP.antennas[1].set_current(current_mag=-1)
-        # array_RHCP.antennas[1].set_orientation(azimuth=180)
-        # array_RHCP.evaluate()
+        # tab = ResultFrame.ResultFrame(master=app.tabs,name='V')
+        # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=antennas['array_V'])
+        # app.add_tab(tab)
         
         # tab = ResultFrame.ResultFrame(master=app.tabs,name='RHCP')
-        # result = Result.Result(tab=tab,
-        #                        name='F',
-        #                        antenna=array_RHCP,analysis=F,
-        #                        plot='3d Polar Surface')
-        # result = Result.Result(tab=tab,
-        #                        name='Ftheta',
-        #                        antenna=array_RHCP,analysis=Ftheta,
-        #                        plot='2d Polar Patch')
-        # result = Result.Result(tab=tab,
-        #                        name='Fphi',
-        #                        antenna=array_RHCP,analysis=Fphi,
-        #                        plot='2d Polar Patch')
+        # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=antennas['array_RHCP'])
+        # app.add_tab(tab)
         
-        # app.add_antenna(array_RHCP)
+        # tab = ResultFrame.ResultFrame(master=app.tabs,name='Validation 1Y-4El')
+        # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=antennas['array_validation_1Y_4El'])
+        # app.add_tab(tab)
+        
+        # tab = ResultFrame.ResultFrame(master=app.tabs,name='Validation 2Y-4El')
+        # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=antennas['array_validation_2Y_4El'])
+        # app.add_tab(tab)
+        
+        # tab = ResultFrame.ResultFrame(master=app.tabs,name='Validation 5Y-4El')
+        # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=antennas['array_validation_5Y_4El'])
+        # app.add_tab(tab)
+        
+        import os
+        import Antenna
+        antenna_dir = 'C:\\Users\\160047412\\OneDrive - unb.br\\LoraAEB\\Antennas'
+        
+        # antenna_path = os.path.join(antenna_dir, '1Y-4EL.csv')
+        # HFSS_1Y_4EL = Antenna.Antenna(name='HFSS 1Y-4EL',
+        #                     theta=np.linspace(0, 90, 91),
+        #                     phi=np.linspace(-180, 180, 91))
+        # HFSS_1Y_4EL.set_evaluation_method('load file')
+        # HFSS_1Y_4EL.evaluation_arguments['file path'] = antenna_path
+        # HFSS_1Y_4EL.evaluation_arguments['load mesh from file'] = False
+        # HFSS_1Y_4EL.set_orientation(elevation=0, azimuth=0, roll=0)
+        # HFSS_1Y_4EL.evaluate()
+        # app.add_antenna(HFSS_1Y_4EL)
+        # tab = ResultFrame.ResultFrame(master=app.tabs,name='1Y-4El',iy=2)
+        # # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=HFSS_1Y_4EL)
+        # LoadCompareAntennas.load_compare_graphs(tab=tab,
+        #                                         antennas=[HFSS_1Y_4EL,antennas['array_validation_1Y_4El']],
+        #                                         titles=['HFSS', 'Validation'])
+        # app.add_tab(tab)
+        
+        # antenna_path = os.path.join(antenna_dir, '2Y-4EL.csv')
+        # HFSS_2Y_4EL = Antenna.Antenna(name='HFSS 2Y-4EL',
+        #                     theta=np.linspace(0, 90, 91),
+        #                     phi=np.linspace(-180, 180, 91))
+        # HFSS_2Y_4EL.set_evaluation_method('load file')
+        # HFSS_2Y_4EL.evaluation_arguments['file path'] = antenna_path
+        # HFSS_2Y_4EL.evaluation_arguments['load mesh from file'] = False
+        # HFSS_2Y_4EL.set_orientation(elevation=0, azimuth=0, roll=0)
+        # HFSS_2Y_4EL.evaluate()
+        # app.add_antenna(HFSS_2Y_4EL)
+        # tab = ResultFrame.ResultFrame(master=app.tabs,name='2Y-4El',iy=2)
+        # # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=HFSS_2Y_4EL)
+        # LoadCompareAntennas.load_compare_graphs(tab=tab,
+        #                                         antennas=[HFSS_2Y_4EL,antennas['array_validation_2Y_4El']],
+        #                                         titles=['HFSS', 'Validation'])
+        # app.add_tab(tab)
+        
+        # antenna_path = os.path.join(antenna_dir, '3Y-4EL.csv')
+        # HFSS_3Y_4EL = Antenna.Antenna(name='HFSS 3Y-4EL',
+        #                     theta=np.linspace(0, 90, 91),
+        #                     phi=np.linspace(-180, 180, 91))
+        # HFSS_3Y_4EL.set_evaluation_method('load file')
+        # HFSS_3Y_4EL.evaluation_arguments['file path'] = antenna_path
+        # HFSS_3Y_4EL.evaluation_arguments['load mesh from file'] = False
+        # HFSS_3Y_4EL.set_orientation(elevation=0, azimuth=0, roll=0)
+        # HFSS_3Y_4EL.evaluate()
+        # app.add_antenna(HFSS_3Y_4EL)
+        # tab = ResultFrame.ResultFrame(master=app.tabs,name='3Y-4El',iy=2)
+        # # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=HFSS_5Y_4EL)
+        # LoadCompareAntennas.load_compare_graphs(tab=tab,
+        #                                         antennas=[HFSS_3Y_4EL,antennas['array_validation_3Y_4El']],
+        #                                         titles=['HFSS', 'Validation'])
+        # app.add_tab(tab)
+        
+        # antenna_path = os.path.join(antenna_dir, '4Y-4EL.csv')
+        # HFSS_4Y_4EL = Antenna.Antenna(name='HFSS 4Y-4EL',
+        #                     theta=np.linspace(0, 90, 91),
+        #                     phi=np.linspace(-180, 180, 91))
+        # HFSS_4Y_4EL.set_evaluation_method('load file')
+        # HFSS_4Y_4EL.evaluation_arguments['file path'] = antenna_path
+        # HFSS_4Y_4EL.evaluation_arguments['load mesh from file'] = False
+        # HFSS_4Y_4EL.set_orientation(elevation=0, azimuth=0, roll=0)
+        # HFSS_4Y_4EL.evaluate()
+        # app.add_antenna(HFSS_4Y_4EL)
+        # tab = ResultFrame.ResultFrame(master=app.tabs,name='4Y-4El',iy=2)
+        # # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=HFSS_5Y_4EL)
+        # LoadCompareAntennas.load_compare_graphs(tab=tab,
+        #                                         antennas=[HFSS_4Y_4EL,antennas['array_validation_4Y_4El']],
+        #                                         titles=['HFSS', 'Validation'])
+        # app.add_tab(tab)
+        
+        # antenna_path = os.path.join(antenna_dir, '5Y-4EL.csv')
+        # HFSS_5Y_4EL = Antenna.Antenna(name='HFSS 5Y-4EL',
+        #                     theta=np.linspace(0, 90, 91),
+        #                     phi=np.linspace(-180, 180, 91))
+        # HFSS_5Y_4EL.set_evaluation_method('load file')
+        # HFSS_5Y_4EL.evaluation_arguments['file path'] = antenna_path
+        # HFSS_5Y_4EL.evaluation_arguments['load mesh from file'] = False
+        # HFSS_5Y_4EL.set_orientation(elevation=0, azimuth=0, roll=0)
+        # HFSS_5Y_4EL.evaluate()
+        # app.add_antenna(HFSS_5Y_4EL)
+        # tab = ResultFrame.ResultFrame(master=app.tabs,name='5Y-4El',iy=2)
+        # # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=HFSS_5Y_4EL)
+        # LoadCompareAntennas.load_compare_graphs(tab=tab,
+        #                                         antennas=[HFSS_5Y_4EL,antennas['array_validation_5Y_4El']],
+        #                                         titles=['HFSS', 'Validation'])
         # app.add_tab(tab)
         
         # Main application loop

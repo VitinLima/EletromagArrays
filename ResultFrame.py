@@ -6,6 +6,7 @@ Created on Mon Mar 13 18:19:19 2023
 """
 
 import tkinter as tk
+import numpy as np
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (
@@ -13,9 +14,13 @@ from matplotlib.backends.backend_tkagg import (
 from matplotlib.backend_bases import key_press_handler
 
 class ResultFrame(tk.Frame):
-    def __init__(self,master=None,name='New tab',**kw):
+    def __init__(self,master=None,name='New tab',iy=1,**kw):
         tk.Frame.__init__(self, master, width=300, height=200, **kw)
         self.name=name
+        self.iy=iy
+        
+        self.ix = 1
+        self.subplot_spaces = [None]
         
         self.listeners = []
         self.ok = True
@@ -48,19 +53,48 @@ class ResultFrame(tk.Frame):
             print(str(self) + ' notifying ' + str(l) + ' for ' + event)
             l.notify(self)
     
+    def determine_subplots_layout(self):
+        # integer divided by 2 terminates either in 0 or 0.5, so round works fine here
+        max_position = max([result.preferred_position[-1] if str(type(result.preferred_position))=="<class 'tuple'>" else result.preferred_position for result in self.results if result.preferred_position is not None] + [len(self.results)])
+        ix = max_position/self.iy
+        if ix - int(ix) > 0:
+            self.ix = int(self.ix) + 1
+        else:
+            self.ix = int(self.ix)
+        self.subplot_spaces = [None for i in range(self.ix*self.iy)]
+    
     def add_result(self, result):
         self.results.append(result)
         result.listeners.append(self)
         self.ok = False
+        if len(self.results)>len(self.subplot_spaces):
+            self.determine_subplots_layout()
     
     def remove_result(self, result):
         self.results.remove(result)
         result.listeners.remove(self)
+        self.ok = False
     
-    def request_axes(self, requester, projection, **kw):
+    def request_axes(self, requester, projection, preferred_position=None, **kw):
         # if requester in self.axes_dict.keys():
         #     self.axes_dict[requester].remove()
-        self.axes_dict[requester] = self.figure.add_subplot(1,len(self.results),self.results.index(requester)+1,projection=projection,**kw)
+        if preferred_position==None:
+            position = [i for i in range(len(self.subplot_spaces)) if self.subplot_spaces[i]==None][0]+1
+        elif str(type(preferred_position))=="<class 'tuple'>":
+            flag = True
+            for i in preferred_position:
+                if self.subplot_spaces[i-1] is not None:
+                    flag = False
+            if flag:
+                position = preferred_position
+            else:
+                position = [i for i in range(len(self.subplot_spaces)) if self.subplot_spaces[i]==None][0]+1
+        else:
+            if self.subplot_spaces[preferred_position-1]==None:
+                position = preferred_position
+            else:
+                position = [i for i in range(preferred_position-1,len(self.subplot_spaces)) if self.subplot_spaces[i]==None][0]+1
+        self.axes_dict[requester] = self.figure.add_subplot(self.ix,self.iy,position,projection=projection,**kw)
         return self.axes_dict[requester]
     
     def request_axes_delete(self, requester):
@@ -83,12 +117,14 @@ class ResultFrame(tk.Frame):
     def draw(self):
         self.undraw()
         
+        self.determine_subplots_layout()
+        
         self.draw_background()
         for result in self.results:
             result.draw()
         
         self.canvas.draw()
-        self.configure(width=500*len(self.results), height=400)
+        # self.configure(width=300*self.iy, height=200*self.ix)
     
     def undraw(self):
         self.figure.clear()

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Mar 14 17:34:44 2023
+Created on Sat May 13 13:46:32 2023
 
 @author: 160047412
 """
@@ -10,7 +10,7 @@ from tkinter import ttk
 
 # from AxesEditorFrame import AxesEditorFrame
 
-class ResultEditorFrame(ttk.Frame):
+class FieldResultEditorFrame(ttk.Frame):
     def __init__(self,app,result,on_finish=True,on_done=None,on_cancel=None,master=None,**kw):
         ttk.Frame.__init__(self,master=master,width=300,height=200,**kw)
         self.app = app
