@@ -47,7 +47,9 @@ class ResultEditorFrame(ttk.Frame):
         
         self.in_dB_variable = tk.IntVar(value=self.result.in_dB)
         self.dynamic_scaling_dB_variable = tk.DoubleVar(value=self.result.dynamic_scaling_dB)
-        self.hide_axis_variable = tk.IntVar(value=self.result.hide_axis)
+        self.visible_flag_variable = tk.IntVar(value=self.result.visible_flag)
+        self.axis_flag_variable = tk.IntVar(value=self.result.axis_flag)
+        self.grid_flag_variable = tk.IntVar(value=self.result.grid_flag)
         
         # self.edit_axes_frame_label = tk.StringVar()
     
@@ -99,10 +101,16 @@ class ResultEditorFrame(ttk.Frame):
         fr_left_top.pack(side='top',fill='both')
         
         fr_left_top_left = ttk.Frame(master=fr_left_top)
-        fr_left_top_left.pack(side='top',fill='both',padx=3,pady=3)
+        fr_left_top_left.pack(side='left',fill='both',padx=3,pady=3)
         
-        ttk.Checkbutton(master=fr_left_top_left,text='in dB',variable=self.in_dB_variable).pack(side='left',fill='both')
-        ttk.Checkbutton(master=fr_left_top_left,text='hide axis',variable=self.hide_axis_variable).pack(side='left',fill='both')
+        ttk.Checkbutton(master=fr_left_top_left,text='visible',variable=self.visible_flag_variable).pack(side='top',fill='both')
+        ttk.Checkbutton(master=fr_left_top_left,text='axis',variable=self.axis_flag_variable).pack(side='top',fill='both')
+        ttk.Checkbutton(master=fr_left_top_left,text='grid',variable=self.grid_flag_variable).pack(side='top',fill='both')
+        ttk.Checkbutton(master=fr_left_top_left,text='in dB',variable=self.in_dB_variable).pack(side='top',fill='both')
+        
+        fr_left_top_left = ttk.Frame(master=fr_left_top)
+        fr_left_top_left.pack(side='left',fill='both',padx=3,pady=3)
+        
         ttk.Checkbutton(master=fr_left_top_left, textvariable=self.color_textvariable, variable=self.color_variable, command=self._on_color_cbt_change, onvalue='Color by magnitude', offvalue='Color by phase').pack(side='left', fill='both')
         
         fr_left_top_left = ttk.Frame(master=fr_left_top)
@@ -201,7 +209,9 @@ class ResultEditorFrame(ttk.Frame):
         
         self.result.in_dB = self.in_dB_variable.get()==True
         self.result.dynamic_scaling_dB = self.dynamic_scaling_dB_variable.get()
-        self.result.hide_axis = self.hide_axis_variable.get()==True
+        self.result.visible_flag = self.visible_flag_variable.get()==True
+        self.result.axis_flag = self.axis_flag_variable.get()==True
+        self.result.grid_flag = self.grid_flag_variable.get()==True
         
         self.result.ok = False
         self.result.update()

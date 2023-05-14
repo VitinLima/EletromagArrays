@@ -17,18 +17,19 @@ class Result():
     available_plots = ['2d Graph','2d Contour','3d Surface','2d Polar Graph', '2d Polar Contour', '2d Polar Patch', '3d Polar Surface','3d Polar']
     available_fields = ['F', 'Ftheta', 'Fphi', 'Frhcp', 'Flhcp', 'Fref', 'Fcross', 'Fc']
     # plot_projections = ['2d', '2d', '2d', '3d', '2d', '2d', ]
-    def __init__(self,tab,name='New result',
+    def __init__(self,tab,name='New result',title='Title',
                  antenna=None,analysis=None,
                  field='F',color='Color by magnitude',
-                 # projection='3dpolar',
                  plot='2d Polar Patch',
                  in_dB=True,
                  dynamic_scaling_dB=-30,
+                 visible_flag=True,
                  axis_flag=True,
                  grid_flag=True,
                  preferred_position=None,
                  reference_2d=Geometry.Geometry.ReferenceSystem()):
         self.name=name
+        self.title=title
         self.tab=tab
         self.antenna=antenna
         self.analysis=analysis
@@ -37,6 +38,7 @@ class Result():
         self.color=color
         self.in_dB=in_dB
         self.dynamic_scaling_dB=dynamic_scaling_dB
+        self.visible_flag=visible_flag
         self.axis_flag=axis_flag
         self.grid_flag=grid_flag
         self.preferred_position=preferred_position
@@ -106,19 +108,19 @@ class Result():
         elif self.plot=='2d Polar Graph':
             self.projection = '2dpolar'
             self.axes = self.tab.request_axes(requester=self,
-                                              projection=None,
+                                              projection='polar',
                                               preferred_position=self.preferred_position,
                                               **kw)
         elif self.plot=='2d Polar Contour':
             self.projection = '2dpolar'
             self.axes = self.tab.request_axes(requester=self,
-                                              projection=None,
+                                              projection='polar',
                                               preferred_position=self.preferred_position,
                                               **kw)
         elif self.plot=='2d Polar Patch':
             self.projection = '2dpolar'
             self.axes = self.tab.request_axes(requester=self,
-                                              projection=None,
+                                              projection='polar',
                                               preferred_position=self.preferred_position,
                                               **kw)
         elif self.plot=='3d Polar Surface':
@@ -145,20 +147,20 @@ class Result():
                 }
     
     def update_axes(self):
-        if self.projection == '2dpolar':
-            if not self.axis_flag:
-                thetas = np.sin(np.radians(np.array([10, 45, 60, 90])))
-                angles = np.linspace(0,2*np.pi,181)
-                for theta in thetas:
-                    x = theta*np.cos(angles)
-                    y = theta*np.sin(angles)
-                    self.axes.plot(x,y,color='#aaaaaa',linewidth=0.3)
-                phis = np.radians([0, 45, 90, 135, 180, 225, 270, 315])
-                angles = np.sin(np.radians(np.linspace(10,90,2)))
-                for phi in phis:
-                    x = angles*np.cos(phi)
-                    y = angles*np.sin(phi)
-                    self.axes.plot(x,y,color='#aaaaaa',linewidth=0.3)
+        # if self.projection == '2dpolar':
+        #     if not self.axis_flag:
+        #         thetas = np.sin(np.radians(np.array([10, 45, 60, 90])))
+        #         angles = np.linspace(0,2*np.pi,181)
+        #         for theta in thetas:
+        #             x = theta*np.cos(angles)
+        #             y = theta*np.sin(angles)
+        #             self.axes.plot(x,y,color='#aaaaaa',linewidth=0.3)
+        #         phis = np.radians([0, 45, 90, 135, 180, 225, 270, 315])
+        #         angles = np.sin(np.radians(np.linspace(10,90,2)))
+        #         for phi in phis:
+        #             x = angles*np.cos(phi)
+        #             y = angles*np.sin(phi)
+        #             self.axes.plot(x,y,color='#aaaaaa',linewidth=0.3)
         if self.axes is not None:
             self.axes.autoscale(enable=True,tight=True)
             for k,v in zip(self.properties.keys(),self.properties.values()):
@@ -170,6 +172,9 @@ class Result():
                     self.axes.set_zlabel(v)
                 elif k=='axis':
                     self.axes.axis(v)
+        self.axes.set_visible(self.visible_flag)
+        self.axes.axis(self.axis_flag)
+        self.axes.grid(self.grid_flag)
     
     def reference_polarization(self, theta, phi):
         sp = np.sin(phi)
@@ -407,23 +412,25 @@ class Result():
         points[:,1] = np.sin(angles)
         
         field = self.get_2d_field(points)
-        min_field = np.min(field)
-        if min_field < 0:
-            field -= min_field
+        # min_field = np.min(field)
+        # if min_field < 0:
+        #     field -= min_field
         
-        points = field[:,np.newaxis]*points
+        # points = field[:,np.newaxis]*points
         
-        self.graphical_objects = self.axes.plot(points[:,0], points[:,1])
+        self.graphical_objects = self.axes.plot(angles, field)
     
     def draw_polar_contourf(self):
         field,color = self.get_field()
         
-        R = np.degrees(self.antenna.mesh_theta)
+        # R = np.degrees(self.antenna.mesh_theta)
         
-        x = R*np.cos(self.antenna.mesh_phi)
-        y = R*np.sin(self.antenna.mesh_phi)
+        # x = R*np.cos(self.antenna.mesh_phi)
+        # y = R*np.sin(self.antenna.mesh_phi)
         
-        self.graphical_objects = self.axes.contourf(x,y,field,10,cmap='jet')
+        self.graphical_objects = self.axes.contourf(self.antenna.mesh_phi,
+                                                    np.degrees(self.antenna.mesh_theta),
+                                                    field,10,cmap='jet')
     
     def draw_contourf(self):
         field,color = self.get_field()
@@ -456,8 +463,8 @@ class Result():
         if self.translate:
             R += position
         self.graphical_objects = self.axes.plot_surface(R[:,:,0], R[:,:,1], R[:,:,2],
-                              rstride=1, cstride=1, facecolors=rgb,
-                              linewidth=0, antialiased=False)
+                                                        rstride=1, cstride=1, facecolors=rgb,
+                                                        linewidth=0, antialiased=False)
         self.properties['axis'] = 'equal'
     
     def draw_surface(self):
@@ -481,8 +488,8 @@ class Result():
         x = np.degrees(self.antenna.mesh_phi)
         y = np.degrees(self.antenna.mesh_theta)
         self.graphical_objects = self.axes.plot_surface(x, y, field,
-                              rstride=1, cstride=1, facecolors=rgb,
-                              linewidth=0, antialiased=False)
+                                                        rstride=1, cstride=1, facecolors=rgb,
+                                                        linewidth=0, antialiased=False)
     
     def draw_polar_surface(self):
         field,color = self.get_field()
@@ -500,22 +507,24 @@ class Result():
             rgb[:,:,3] = 1
             rgb[:,:,2] = 1
         
-        R = np.sin(self.antenna.mesh_theta.copy())
+        # R = np.sin(self.antenna.mesh_theta.copy())
         
-        x = R*np.cos(self.antenna.mesh_phi)
-        y = R*np.sin(self.antenna.mesh_phi)
+        # x = R*np.cos(self.antenna.mesh_phi)
+        # y = R*np.sin(self.antenna.mesh_phi)
         
-        self.graphical_objects = self.axes.plot_surface(x, y, field,
-                              rstride=1, cstride=1, facecolors=rgb,
-                              linewidth=0, antialiased=False)
+        self.graphical_objects = self.axes.plot_surface(self.antenna.mesh_phi,
+                                                        np.sin(self.antenna.mesh_theta.copy()),
+                                                        field,
+                                                        rstride=1, cstride=1, facecolors=rgb,
+                                                        linewidth=0, antialiased=False)
     
     def draw_polar_patch(self):
         field,color = self.get_field()
         
-        R = np.sin(self.antenna.mesh_theta.copy())
+        # R = np.sin(self.antenna.mesh_theta.copy())
         
-        x = R*np.cos(self.antenna.mesh_phi)
-        y = R*np.sin(self.antenna.mesh_phi)
+        # x = R*np.cos(self.antenna.mesh_phi)
+        # y = R*np.sin(self.antenna.mesh_phi)
         
         jet = plt.colormaps['jet']
         color_max = color.max()
@@ -530,11 +539,13 @@ class Result():
             rgb[:,:,3] = 1
             rgb[:,:,2] = 1
         
-        self.graphical_objects = self.axes.pcolormesh(x, y, color,
+        self.graphical_objects = self.axes.pcolormesh(self.antenna.mesh_phi,
+                                                      np.sin(self.antenna.mesh_theta),
+                                                      color,
                                                       shading='gouraud',
                                                       cmap='jet')
         plt.colorbar(self.graphical_objects,ax=self.axes)
-        self.axes.set_title(self.name)
+        self.axes.set_title(self.title)
     
     def result_menu(self,tw):
         new_menu = tk.Frame(master=tw)

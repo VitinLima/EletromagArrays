@@ -21,7 +21,7 @@ def run(antennas):
             else:
                 plot = '2d Polar Patch'
             Result.Result(tab=figure,
-                          name='',
+                          title='',
                           antenna=antenna,
                           field=field,
                           plot=plot,
