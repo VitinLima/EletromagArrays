@@ -194,131 +194,17 @@ if __name__=="__main__":
     # Create the application
     app = App()
     try:
-        import LoadDefaultAntennas
-        antennas = LoadDefaultAntennas.load_default_antennas(Ntheta=91, Nphi=91)
-        for antenna in antennas.values():
-            app.add_antenna(antenna)
-        # import LoadDefaultAnalyses
-        # analyses = LoadDefaultAnalyses.load_default_analyses()
-        # for analysis in analyses.values():
-        #     app.add_analysis(analysis)
+        import Scripts.LoadDefaultAntennas
+        antennas = Scripts.LoadDefaultAntennas.run(app=app, Ntheta=21, Nphi=21)
         
-        import ResultFrame
-        import LoadDefaultGraphs
-        import LoadCompareAntennas
+        # import Scripts.LoadValidationArrays
+        # antennas.update(Scripts.LoadValidationArrays.run(app=app, Ntheta=21, Nphi=21))
         
-        # tab = ResultFrame.ResultFrame(master=app.tabs,name='H')
-        # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=antennas['array_H'])
-        # app.add_tab(tab)
+        # import Scripts.LoadDefaultAnalyses
+        # Scripts.LoadDefaultAnalyses.run(app)
         
-        # tab = ResultFrame.ResultFrame(master=app.tabs,name='V')
-        # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=antennas['array_V'])
-        # app.add_tab(tab)
-        
-        # tab = ResultFrame.ResultFrame(master=app.tabs,name='RHCP')
-        # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=antennas['array_RHCP'])
-        # app.add_tab(tab)
-        
-        # tab = ResultFrame.ResultFrame(master=app.tabs,name='Validation 1Y-4El')
-        # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=antennas['array_validation_1Y_4El'])
-        # app.add_tab(tab)
-        
-        # tab = ResultFrame.ResultFrame(master=app.tabs,name='Validation 2Y-4El')
-        # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=antennas['array_validation_2Y_4El'])
-        # app.add_tab(tab)
-        
-        # tab = ResultFrame.ResultFrame(master=app.tabs,name='Validation 5Y-4El')
-        # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=antennas['array_validation_5Y_4El'])
-        # app.add_tab(tab)
-        
-        import os
-        import Antenna
-        antenna_dir = 'C:\\Users\\160047412\\OneDrive - unb.br\\LoraAEB\\Antennas'
-        
-        # antenna_path = os.path.join(antenna_dir, '1Y-4EL.csv')
-        # HFSS_1Y_4EL = Antenna.Antenna(name='HFSS 1Y-4EL',
-        #                     theta=np.linspace(0, 90, 91),
-        #                     phi=np.linspace(-180, 180, 91))
-        # HFSS_1Y_4EL.set_evaluation_method('load file')
-        # HFSS_1Y_4EL.evaluation_arguments['file path'] = antenna_path
-        # HFSS_1Y_4EL.evaluation_arguments['load mesh from file'] = False
-        # HFSS_1Y_4EL.set_orientation(elevation=0, azimuth=0, roll=0)
-        # HFSS_1Y_4EL.evaluate()
-        # app.add_antenna(HFSS_1Y_4EL)
-        # tab = ResultFrame.ResultFrame(master=app.tabs,name='1Y-4El',iy=2)
-        # # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=HFSS_1Y_4EL)
-        # LoadCompareAntennas.load_compare_graphs(tab=tab,
-        #                                         antennas=[HFSS_1Y_4EL,antennas['array_validation_1Y_4El']],
-        #                                         titles=['HFSS', 'Validation'])
-        # app.add_tab(tab)
-        
-        # antenna_path = os.path.join(antenna_dir, '2Y-4EL.csv')
-        # HFSS_2Y_4EL = Antenna.Antenna(name='HFSS 2Y-4EL',
-        #                     theta=np.linspace(0, 90, 91),
-        #                     phi=np.linspace(-180, 180, 91))
-        # HFSS_2Y_4EL.set_evaluation_method('load file')
-        # HFSS_2Y_4EL.evaluation_arguments['file path'] = antenna_path
-        # HFSS_2Y_4EL.evaluation_arguments['load mesh from file'] = False
-        # HFSS_2Y_4EL.set_orientation(elevation=0, azimuth=0, roll=0)
-        # HFSS_2Y_4EL.evaluate()
-        # app.add_antenna(HFSS_2Y_4EL)
-        # tab = ResultFrame.ResultFrame(master=app.tabs,name='2Y-4El',iy=2)
-        # # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=HFSS_2Y_4EL)
-        # LoadCompareAntennas.load_compare_graphs(tab=tab,
-        #                                         antennas=[HFSS_2Y_4EL,antennas['array_validation_2Y_4El']],
-        #                                         titles=['HFSS', 'Validation'])
-        # app.add_tab(tab)
-        
-        # antenna_path = os.path.join(antenna_dir, '3Y-4EL.csv')
-        # HFSS_3Y_4EL = Antenna.Antenna(name='HFSS 3Y-4EL',
-        #                     theta=np.linspace(0, 90, 91),
-        #                     phi=np.linspace(-180, 180, 91))
-        # HFSS_3Y_4EL.set_evaluation_method('load file')
-        # HFSS_3Y_4EL.evaluation_arguments['file path'] = antenna_path
-        # HFSS_3Y_4EL.evaluation_arguments['load mesh from file'] = False
-        # HFSS_3Y_4EL.set_orientation(elevation=0, azimuth=0, roll=0)
-        # HFSS_3Y_4EL.evaluate()
-        # app.add_antenna(HFSS_3Y_4EL)
-        # tab = ResultFrame.ResultFrame(master=app.tabs,name='3Y-4El',iy=2)
-        # # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=HFSS_5Y_4EL)
-        # LoadCompareAntennas.load_compare_graphs(tab=tab,
-        #                                         antennas=[HFSS_3Y_4EL,antennas['array_validation_3Y_4El']],
-        #                                         titles=['HFSS', 'Validation'])
-        # app.add_tab(tab)
-        
-        # antenna_path = os.path.join(antenna_dir, '4Y-4EL.csv')
-        # HFSS_4Y_4EL = Antenna.Antenna(name='HFSS 4Y-4EL',
-        #                     theta=np.linspace(0, 90, 91),
-        #                     phi=np.linspace(-180, 180, 91))
-        # HFSS_4Y_4EL.set_evaluation_method('load file')
-        # HFSS_4Y_4EL.evaluation_arguments['file path'] = antenna_path
-        # HFSS_4Y_4EL.evaluation_arguments['load mesh from file'] = False
-        # HFSS_4Y_4EL.set_orientation(elevation=0, azimuth=0, roll=0)
-        # HFSS_4Y_4EL.evaluate()
-        # app.add_antenna(HFSS_4Y_4EL)
-        # tab = ResultFrame.ResultFrame(master=app.tabs,name='4Y-4El',iy=2)
-        # # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=HFSS_5Y_4EL)
-        # LoadCompareAntennas.load_compare_graphs(tab=tab,
-        #                                         antennas=[HFSS_4Y_4EL,antennas['array_validation_4Y_4El']],
-        #                                         titles=['HFSS', 'Validation'])
-        # app.add_tab(tab)
-        
-        # antenna_path = os.path.join(antenna_dir, '5Y-4EL.csv')
-        # HFSS_5Y_4EL = Antenna.Antenna(name='HFSS 5Y-4EL',
-        #                     theta=np.linspace(0, 90, 91),
-        #                     phi=np.linspace(-180, 180, 91))
-        # HFSS_5Y_4EL.set_evaluation_method('load file')
-        # HFSS_5Y_4EL.evaluation_arguments['file path'] = antenna_path
-        # HFSS_5Y_4EL.evaluation_arguments['load mesh from file'] = False
-        # HFSS_5Y_4EL.set_orientation(elevation=0, azimuth=0, roll=0)
-        # HFSS_5Y_4EL.evaluate()
-        # app.add_antenna(HFSS_5Y_4EL)
-        # tab = ResultFrame.ResultFrame(master=app.tabs,name='5Y-4El',iy=2)
-        # # LoadDefaultGraphs.load_default_graphs(tab=tab,antenna=HFSS_5Y_4EL)
-        # LoadCompareAntennas.load_compare_graphs(tab=tab,
-        #                                         antennas=[HFSS_5Y_4EL,antennas['array_validation_5Y_4El']],
-        #                                         titles=['HFSS', 'Validation'])
-        # app.add_tab(tab)
+        # import Scripts.ValidationHFSS
+        # antennas += Scripts.ValidationHFSS.run(app=app, antennas=antennas)
         
         # Main application loop
         app.mainloop()

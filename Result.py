@@ -7,8 +7,11 @@ Created on Sun Apr 23 00:43:16 2023
 
 import tkinter as tk
 import numpy as np
+from scipy.interpolate import griddata
 
 import matplotlib.pyplot as plt
+
+import Geometry.Geometry
 
 class Result():
     available_plots = ['2d Graph','2d Contour','3d Surface','2d Polar Graph', '2d Polar Contour', '2d Polar Patch', '3d Polar Surface','3d Polar']
@@ -21,8 +24,10 @@ class Result():
                  plot='2d Polar Patch',
                  in_dB=True,
                  dynamic_scaling_dB=-30,
-                 hide_axis=False,
-                 preferred_position=None):
+                 axis_flag=True,
+                 grid_flag=True,
+                 preferred_position=None,
+                 reference_2d=Geometry.Geometry.ReferenceSystem()):
         self.name=name
         self.tab=tab
         self.antenna=antenna
@@ -32,15 +37,14 @@ class Result():
         self.color=color
         self.in_dB=in_dB
         self.dynamic_scaling_dB=dynamic_scaling_dB
-        self.hide_axis=hide_axis
+        self.axis_flag=axis_flag
+        self.grid_flag=grid_flag
         self.preferred_position=preferred_position
+        self.reference_2d=reference_2d
         
         self.listeners = []
         self.ok = False
         
-        self.reference_plane_X = 0.0
-        self.reference_plane_Y = 0.0
-        self.reference_plane_Z = 1.0
         self.domain = None
         
         if self.antenna is not None:
@@ -142,7 +146,7 @@ class Result():
     
     def update_axes(self):
         if self.projection == '2dpolar':
-            if not self.hide_axis:
+            if not self.axis_flag:
                 thetas = np.sin(np.radians(np.array([10, 45, 60, 90])))
                 angles = np.linspace(0,2*np.pi,181)
                 for theta in thetas:
@@ -354,6 +358,63 @@ class Result():
     #     #             c.remove()
     #     #     self.graphical_objects = None
     
+    def get_2d_field(self, points):
+        field,color = self.get_field()
+        
+        thetas = np.zeros((181))
+        phis = np.zeros((181))
+        for i in range(points.shape[0]):
+            point = self.reference_2d.R@points[i,:]
+            x = point[0]
+            y = point[1]
+            z = point[2]
+            thetas[i] = np.arctan2(np.sqrt(y*y+x*x), z)
+            phis[i] = np.arctan2(y, x)
+        
+        thetas = np.degrees(thetas)
+        phis = np.degrees(phis)
+        fit_points = np.ndarray((len(thetas),2))
+        fit_points[:,0] = thetas
+        fit_points[:,1]= phis
+        
+        interp_thetas = np.degrees(self.antenna.mesh_theta).flatten()
+        interp_phis = np.degrees(self.antenna.mesh_phi).flatten()
+        interp_points = np.ndarray((len(interp_thetas),2))
+        interp_points[:,0] = interp_thetas
+        interp_points[:,1] = interp_phis
+        
+        values = field.flatten()
+        if values.dtype==np.dtype('complex64'):
+            values = np.array(values,dtype=np.dtype('complex128'))
+        field = griddata(interp_points, values, fit_points, method='linear')
+        
+        return field
+    
+    def draw_graph(self):
+        angles = np.radians(np.linspace(-180,180,181))
+        points = np.zeros((len(angles),3))
+        points[:,0] = np.cos(angles)
+        points[:,1] = np.sin(angles)
+        
+        field = self.get_2d_field(points)
+        
+        self.graphical_objects = self.axes.plot(angles, field)
+    
+    def draw_polar_graph(self):
+        angles = np.radians(np.linspace(-180,180,181))
+        points = np.zeros((len(angles),3))
+        points[:,0] = np.cos(angles)
+        points[:,1] = np.sin(angles)
+        
+        field = self.get_2d_field(points)
+        min_field = np.min(field)
+        if min_field < 0:
+            field -= min_field
+        
+        points = field[:,np.newaxis]*points
+        
+        self.graphical_objects = self.axes.plot(points[:,0], points[:,1])
+    
     def draw_polar_contourf(self):
         field,color = self.get_field()
         
@@ -375,6 +436,9 @@ class Result():
     def draw_polar3d(self):
         field,color = self.get_field()
         position = np.array([self.antenna.x,self.antenna.y,self.antenna.z])
+        min_field = np.min(field)
+        if min_field < 0:
+            field -= min_field
         R = field[:,:,np.newaxis]*self.antenna.hat_k
     
         jet = plt.colormaps['jet']
@@ -397,11 +461,9 @@ class Result():
         self.properties['axis'] = 'equal'
     
     def draw_surface(self):
-        field = self.analysis.evaluate_field(self.antenna)
-        field[field<1e-3] = 0
+        field,color = self.get_field()
     
         jet = plt.colormaps['jet']
-        color = self.analysis.evaluate_color(self.antenna)
         if str(type(color))=="<class 'NoneType'>":
             color = field
         color_max = color.max()

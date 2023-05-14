@@ -1,21 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Mar 13 18:19:19 2023
+Created on Sat May 13 18:10:10 2023
 
 @author: 160047412
 """
 
-import tkinter as tk
-
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import (
-    FigureCanvasTkAgg, NavigationToolbar2Tk)
-from matplotlib.backend_bases import key_press_handler
 
-class ResultFrame(tk.Frame):
-    def __init__(self,master=None,name='New tab',iy=1,**kw):
-        tk.Frame.__init__(self, master, width=300, height=200, **kw)
-        self.name=name
+class ResultFigure:
+    def __init__(self,iy=1):
         self.iy=iy
         
         self.ix = 1
@@ -26,22 +19,9 @@ class ResultFrame(tk.Frame):
         
         bg_color = 'white'
         # bg_color = '#505050'
-        self.figure = plt.Figure(figsize=(5, 4), dpi=100, facecolor=bg_color)
+        self.figure = plt.figure(figsize=(5, 4), dpi=100, facecolor=bg_color)
         self.axes_dict = dict()
         self.results = []
-        
-        self.canvas = FigureCanvasTkAgg(self.figure, master=self)  # A tk.DrawingArea.
-        self.canvas.draw()
-        
-        # pack_toolbar=False will make it easier to use a layout manager later on.
-        self.toolbar = NavigationToolbar2Tk(self.canvas, self, pack_toolbar=False)
-        self.toolbar.update()
-        
-        self.canvas.mpl_connect(
-            "key_press_event", lambda event: print(f"you pressed {event.key}"))
-        self.canvas.mpl_connect("key_press_event", key_press_handler)
-        self.toolbar.pack(side=tk.BOTTOM, fill=tk.X)
-        self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
     
     def notify(self, caller, event):
         self.ok = False
@@ -122,7 +102,8 @@ class ResultFrame(tk.Frame):
         for result in self.results:
             result.draw()
         
-        self.canvas.draw()
+        # self.figure.show()
+        # self.canvas.draw()
         # self.configure(width=300*self.iy, height=200*self.ix)
     
     def undraw(self):

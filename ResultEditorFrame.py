@@ -9,6 +9,7 @@ import tkinter as tk
 from tkinter import ttk
 
 # from AxesEditorFrame import AxesEditorFrame
+import Geometry.Geometry
 
 class ResultEditorFrame(ttk.Frame):
     def __init__(self,app,result,on_finish=True,on_done=None,on_cancel=None,master=None,**kw):
@@ -37,9 +38,12 @@ class ResultEditorFrame(ttk.Frame):
         self.color_variable = tk.StringVar(value=self.result.color)
         self.color_textvariable = tk.StringVar(value=self.result.color)
         
-        self.reference_plane_X_variable = tk.DoubleVar(value=self.result.reference_plane_X)
-        self.reference_plane_Y_variable = tk.DoubleVar(value=self.result.reference_plane_Y)
-        self.reference_plane_Z_variable = tk.DoubleVar(value=self.result.reference_plane_Z)
+        self.X_X_variable = tk.DoubleVar(value=self.result.reference_2d.x_axis.x)
+        self.X_Y_variable = tk.DoubleVar(value=self.result.reference_2d.x_axis.y)
+        self.X_Z_variable = tk.DoubleVar(value=self.result.reference_2d.x_axis.z)
+        self.Z_X_variable = tk.DoubleVar(value=self.result.reference_2d.z_axis.x)
+        self.Z_Y_variable = tk.DoubleVar(value=self.result.reference_2d.z_axis.y)
+        self.Z_Z_variable = tk.DoubleVar(value=self.result.reference_2d.z_axis.z)
         
         self.in_dB_variable = tk.IntVar(value=self.result.in_dB)
         self.dynamic_scaling_dB_variable = tk.DoubleVar(value=self.result.dynamic_scaling_dB)
@@ -130,17 +134,29 @@ class ResultEditorFrame(ttk.Frame):
         self.plot_2d_frame = ttk.LabelFrame(master=self.plot_frame, text='2d plot')
         self.plot_3d_frame = ttk.LabelFrame(master=self.plot_frame, text='3d plot')
         
-        fr_left_top_left = ttk.LabelFrame(master=self.plot_2d_frame, text='Plot Plane')
-        fr_left_top_left.pack(side='left',fill='both')
+        fr_left_top_left = ttk.LabelFrame(master=self.plot_2d_frame, text='X Axis')
+        fr_left_top_left.pack(side='top',fill='both')
         fr_left_top_left_left = ttk.LabelFrame(master=fr_left_top_left, text='X')
         fr_left_top_left_left.pack(side='left',fill='both')
-        ttk.Entry(master=fr_left_top_left_left,textvariable=self.reference_plane_X_variable).pack(side='left',fill='both')
+        ttk.Entry(master=fr_left_top_left_left,textvariable=self.X_X_variable).pack(side='left',fill='both')
         fr_left_top_left_left = ttk.LabelFrame(master=fr_left_top_left, text='Y')
         fr_left_top_left_left.pack(side='left',fill='both')
-        ttk.Entry(master=fr_left_top_left_left,textvariable=self.reference_plane_Y_variable).pack(side='left',fill='both')
+        ttk.Entry(master=fr_left_top_left_left,textvariable=self.X_Y_variable).pack(side='left',fill='both')
         fr_left_top_left_left = ttk.LabelFrame(master=fr_left_top_left, text='Z')
         fr_left_top_left_left.pack(side='left',fill='both')
-        ttk.Entry(master=fr_left_top_left_left,textvariable=self.reference_plane_Z_variable).pack(side='left',fill='both')
+        ttk.Entry(master=fr_left_top_left_left,textvariable=self.X_Z_variable).pack(side='left',fill='both')
+        
+        fr_left_top_left = ttk.LabelFrame(master=self.plot_2d_frame, text='Z Plane')
+        fr_left_top_left.pack(side='top',fill='both')
+        fr_left_top_left_left = ttk.LabelFrame(master=fr_left_top_left, text='X')
+        fr_left_top_left_left.pack(side='left',fill='both')
+        ttk.Entry(master=fr_left_top_left_left,textvariable=self.Z_X_variable).pack(side='left',fill='both')
+        fr_left_top_left_left = ttk.LabelFrame(master=fr_left_top_left, text='Y')
+        fr_left_top_left_left.pack(side='left',fill='both')
+        ttk.Entry(master=fr_left_top_left_left,textvariable=self.Z_Y_variable).pack(side='left',fill='both')
+        fr_left_top_left_left = ttk.LabelFrame(master=fr_left_top_left, text='Z')
+        fr_left_top_left_left.pack(side='left',fill='both')
+        ttk.Entry(master=fr_left_top_left_left,textvariable=self.Z_Z_variable).pack(side='left',fill='both')
         
         # fr_left = ttk.LabelFrame(master=self, text='Axes')
         # fr_left.pack(side='left',fill='both')
@@ -170,9 +186,18 @@ class ResultEditorFrame(ttk.Frame):
         self.result.set_plot(self.plot_variable.get())
         self.result.set_color(self.color_textvariable.get())
         
-        self.result.reference_plane_X = self.reference_plane_X_variable.get()
-        self.result.reference_plane_Y = self.reference_plane_Y_variable.get()
-        self.result.reference_plane_Z = self.reference_plane_Z_variable.get()
+        x_axis = Geometry.Geometry.Axis()
+        z_axis = Geometry.Geometry.Axis()
+        
+        x_axis.x = self.X_X_variable.get()
+        x_axis.y = self.X_Y_variable.get()
+        x_axis.z = self.X_Z_variable.get()
+        
+        z_axis.x = self.Z_X_variable.get()
+        z_axis.y = self.Z_Y_variable.get()
+        z_axis.z = self.Z_Z_variable.get()
+        
+        self.result.reference_2d = Geometry.Geometry.ReferenceSystem(x_axis=x_axis,z_axis=z_axis)
         
         self.result.in_dB = self.in_dB_variable.get()==True
         self.result.dynamic_scaling_dB = self.dynamic_scaling_dB_variable.get()
@@ -191,15 +216,16 @@ class ResultEditorFrame(ttk.Frame):
     def _on_plot_change(self, event=None):
         if self.current_plot_frame is not None:
             self.current_plot_frame.pack_forget()
+            self.plot_frame.pack_forget()
         
-        if self.plot_variable.get() in ['2d Graph','2d Contour','2d Polar Graph', '2d Polar Contour', '2d Polar Patch']:
+        if self.plot_variable.get() in ['2d Graph','2d Polar Graph','2d Contour', '2d Polar Contour', '2d Polar Patch']:
             self.current_plot_frame = self.plot_2d_frame
             self.plot_2d_frame.pack(side='top',fill='both')
+            self.plot_frame.pack(side='top',fill='both')
         elif self.plot_variable.get()==['3d Surface', '3d Polar Surface','3d Polar']:
             self.current_plot_frame = self.plot_3d_frame
             self.plot_3d_frame.pack(side='top',fill='both')
-        
-        self.plot_frame.pack(side='top',fill='both')
+            self.plot_frame.pack(side='top',fill='both')
     
     # def _on_builtin_field_change(self, event=None):
     #     if self.current_field_frame is not None:

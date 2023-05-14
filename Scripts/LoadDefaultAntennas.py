@@ -11,7 +11,7 @@ import numpy as np
 import Antenna
 import Array
 
-def load_default_antennas(elevation=0, azimuth=0, roll=0, Ntheta=31, Nphi=31):
+def run(app=None, elevation=0, azimuth=0, roll=0, Ntheta=31, Nphi=31):
     theta=np.linspace(0, 180, Ntheta)
     phi=np.linspace(-180, 180, Nphi)
     antennas_dir = 'C:\\Users\\160047412\\OneDrive - unb.br\\LoraAEB\\Antennas'
@@ -194,21 +194,27 @@ def load_default_antennas(elevation=0, azimuth=0, roll=0, Ntheta=31, Nphi=31):
     array_validation_5Y_4El.antennas[4].set_position(x=0.83, y=1.19, z=-0.72)
     array_validation_5Y_4El.evaluate()
     
-    return dict(ideal_dipole=ideal_dipole,
-                ideal_loop_dipole=ideal_loop_dipole,
-                antenna_1_H=antenna_1_H,
-                antenna_2_H=antenna_2_H,
-                antenna_3_H=antenna_3_H,
-                antenna_4_H=antenna_4_H,
-                antenna_1_V=antenna_1_V,
-                antenna_2_V=antenna_2_V,
-                antenna_3_V=antenna_3_V,
-                antenna_4_V=antenna_4_V,
-                array_H=array_H,
-                array_V=array_V,
-                array_RHCP=array_RHCP,
-                array_validation_1Y_4El=array_validation_1Y_4El,
-                array_validation_2Y_4El=array_validation_2Y_4El,
-                array_validation_3Y_4El=array_validation_3Y_4El,
-                array_validation_4Y_4El=array_validation_4Y_4El,
-                array_validation_5Y_4El=array_validation_5Y_4El,)
+    antennas =  dict(ideal_dipole=ideal_dipole,
+                     ideal_loop_dipole=ideal_loop_dipole,
+                     antenna_1_H=antenna_1_H,
+                     antenna_2_H=antenna_2_H,
+                     antenna_3_H=antenna_3_H,
+                     antenna_4_H=antenna_4_H,
+                     antenna_1_V=antenna_1_V,
+                     antenna_2_V=antenna_2_V,
+                     antenna_3_V=antenna_3_V,
+                     antenna_4_V=antenna_4_V,
+                     array_H=array_H,
+                     array_V=array_V,
+                     array_RHCP=array_RHCP,
+                     array_validation_1Y_4El=array_validation_1Y_4El,
+                     array_validation_2Y_4El=array_validation_2Y_4El,
+                     array_validation_3Y_4El=array_validation_3Y_4El,
+                     array_validation_4Y_4El=array_validation_4Y_4El,
+                     array_validation_5Y_4El=array_validation_5Y_4El,)
+    
+    if app is not None:
+        for antenna in antennas.values():
+            app.add_antenna(antenna)
+    
+    return antennas
