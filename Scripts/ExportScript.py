@@ -22,16 +22,16 @@ antennas.update(Scripts.LoadValidationArrays.run(Ntheta=91, Nphi=91))
 import Scripts.ExportResults
 
 Scripts.ExportResults.run([
-                            # antennas['array_validation_1Y_4El'],
+                            antennas['array_validation_1Y_4El'],
                             antennas['array_validation_2Y_4El'],
-                            # antennas['array_validation_3Y_4El'],
-                            # antennas['array_validation_4Y_4El'],
-                            # antennas['array_validation_5Y_4El'],
-                            # antennas['HFSS_1Y_4EL'],
+                            antennas['array_validation_3Y_4El'],
+                            antennas['array_validation_4Y_4El'],
+                            antennas['array_validation_5Y_4El'],
+                            antennas['HFSS_1Y_4EL'],
                             antennas['HFSS_2Y_4EL'],
-                            # antennas['HFSS_3Y_4EL'],
-                            # antennas['HFSS_4Y_4EL'],
-                            # antennas['HFSS_5Y_4EL']
+                            antennas['HFSS_3Y_4EL'],
+                            antennas['HFSS_4Y_4EL'],
+                            antennas['HFSS_5Y_4EL']
                             ])
 
 import Result
@@ -67,6 +67,6 @@ fname = os.path.join(results_dir, 'RefSysCompare-Fref-Fcross' + '.png')
 figure.figure.savefig(fname)
 
 
-# Scripts.ExportResults.run([antennas['antenna_1_H'],])
+Scripts.ExportResults.run([antennas['antenna_1_H'],])
 
 plt.close('all')

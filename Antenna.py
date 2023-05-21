@@ -378,6 +378,110 @@ class Antenna:
         self.local_Frhcp = (self.local_Ftheta - 1j*self.local_Fphi)/MyMath.sqrt2
         self.local_Flhcp = (self.local_Ftheta + 1j*self.local_Fphi)/MyMath.sqrt2
     
+    def evaluate_no_speedup(self):
+        ct = np.cos(self.mesh_theta)
+        st = np.sin(self.mesh_theta)
+        cp = np.cos(self.mesh_phi)
+        sp = np.sin(self.mesh_phi)
+        
+        hat_k_local = np.zeros(self.shape + (3,))
+        hat_k_local[:,:,0] = st*cp
+        hat_k_local[:,:,1] = st*sp
+        hat_k_local[:,:,2] = ct
+        hat_theta_local = np.zeros(self.shape + (3,))
+        hat_theta_local[:,:,0] = ct*cp
+        hat_theta_local[:,:,1] = ct*sp
+        hat_theta_local[:,:,2] = -st
+        hat_phi_local = np.zeros(self.shape + (3,))
+        hat_phi_local[:,:,0] = -sp
+        hat_phi_local[:,:,1] = cp
+        hat_phi_local[:,:,2] = 0
+        
+        cp = np.cos(np.radians(self.azimuth))
+        sp = np.sin(np.radians(self.azimuth))
+        Rbeta = np.zeros((3, 3))
+        Rbeta[0,0] = cp
+        Rbeta[0,1] = sp
+        Rbeta[1,0] = -sp
+        Rbeta[1,1] = cp
+        Rbeta[2,2] = 1
+        ct = np.cos(np.radians(self.elevation))
+        st = np.sin(np.radians(self.elevation))
+        Ralpha = np.zeros((3, 3))
+        Ralpha[0,0] = ct
+        Ralpha[0,2] = -st
+        Ralpha[2,0] = st
+        Ralpha[1,1] = 1
+        Ralpha[2,2] = ct
+        cr = np.cos(np.radians(self.roll))
+        sr = np.sin(np.radians(self.roll))
+        Rroll = np.zeros((3, 3))
+        Rroll[0,0] = 1
+        Rroll[1,1] = cr
+        Rroll[1,2] = sr
+        Rroll[2,1] = -sr
+        Rroll[2,2] = cr
+        R = Rroll@Ralpha@Rbeta
+        
+        hat_k_global = R@hat_k_local[:,:,:,np.newaxis]
+        hat_theta_global = R@hat_theta_local[:,:,:,np.newaxis]
+        hat_phi_global = R@hat_phi_local[:,:,:,np.newaxis]
+        
+        hat_k_global = hat_k_global.squeeze()
+        hat_theta_global = hat_theta_global.squeeze()
+        hat_phi_global = hat_phi_global.squeeze()
+        
+        x = hat_k_global[:,:,0];
+        y = hat_k_global[:,:,1];
+        z = hat_k_global[:,:,2];
+        r_xy = np.sqrt(x*x + y*y)
+        
+        interp_theta = np.arctan2(r_xy, z)
+        interp_phi = np.arctan2(y, x)
+        # ids = np.abs(r_xy/z) < 0.34
+        # interp_phi = np.zeros(self.shape)
+        # interp_phi[ids] = np.arctan2(y[ids], x[ids])
+        # ids = not ids
+        # x = hat_theta_global[:,:,0];
+        # y = hat_theta_global[:,:,1];
+        # interp_phi[ids] = np.arctan2(y[ids], x[ids])
+        
+        ct = np.cos(interp_theta)
+        st = np.sin(interp_theta)
+        cp = np.cos(interp_phi)
+        sp = np.sin(interp_phi)
+        
+        hat_k_local = np.zeros(self.shape + (3,))
+        hat_k_local[:,:,0] = st*cp
+        hat_k_local[:,:,1] = st*sp
+        hat_k_local[:,:,2] = ct
+        hat_theta_local = np.zeros(self.shape + (3,))
+        hat_theta_local[:,:,0] = ct*cp
+        hat_theta_local[:,:,1] = ct*sp
+        hat_theta_local[:,:,2] = -st
+        hat_phi_local = np.zeros(self.shape + (3,))
+        hat_phi_local[:,:,0] = -sp
+        hat_phi_local[:,:,1] = cp
+        hat_phi_local[:,:,2] = 0
+        
+        fit_points = (self.local_theta, self.local_phi)
+        interp_points = (interp_theta, interp_phi)
+        
+        values = self.local_Ftheta.copy()
+        if values.dtype==np.dtype('complex64'):
+            values = np.array(values,dtype=np.dtype('complex128'))
+        interp = RegularGridInterpolator(fit_points, values, method='linear')
+        Ftheta = interp(interp_points)
+        
+        values = self.local_Fphi.copy()
+        if values.dtype==np.dtype('complex64'):
+            values = np.array(values,dtype=np.dtype('complex128'))
+        interp = RegularGridInterpolator(fit_points, values, method='linear')
+        Fphi = interp(interp_points)
+        
+        self.Ftheta = Ftheta*(hat_theta_global*hat_theta_local).sum(2) + Fphi*(hat_theta_global*hat_phi_local).sum(2)
+        self.Fphi = Ftheta*(hat_phi_global*hat_theta_local).sum(2) + Fphi*(hat_phi_global*hat_phi_local).sum(2)
+    
     def evaluate(self):
         if self.ok:
             return
