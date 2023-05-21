@@ -88,7 +88,7 @@ def run(app=None, elevation=0, azimuth=0, roll=0, Ntheta=31, Nphi=31):
     antenna_4_V.name += " V"
     antenna_4_V.evaluate()
     
-    theta=np.linspace(0, 180, Ntheta)
+    theta=np.linspace(0, 90, Ntheta)
     phi=np.linspace(-180, 180, Nphi)
     
     array_H = Array.Array(name='H',

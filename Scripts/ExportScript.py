@@ -20,6 +20,7 @@ import Scripts.LoadValidationArrays
 antennas.update(Scripts.LoadValidationArrays.run(Ntheta=91, Nphi=91))
 
 import Scripts.ExportResults
+import Scripts.ExportCompare
 
 Scripts.ExportResults.run([
                             antennas['array_validation_1Y_4El'],
@@ -32,6 +33,19 @@ Scripts.ExportResults.run([
                             antennas['HFSS_3Y_4EL'],
                             antennas['HFSS_4Y_4EL'],
                             antennas['HFSS_5Y_4EL']
+                            ])
+
+Scripts.ExportCompare.run([
+                            (antennas['array_validation_1Y_4El'],
+                            antennas['HFSS_1Y_4EL']),
+                            (antennas['array_validation_2Y_4El'],
+                            antennas['HFSS_2Y_4EL']),
+                            (antennas['array_validation_3Y_4El'],
+                            antennas['HFSS_3Y_4EL']),
+                            (antennas['array_validation_4Y_4El'],
+                            antennas['HFSS_4Y_4EL']),
+                            (antennas['array_validation_5Y_4El'],
+                            antennas['HFSS_5Y_4EL'])
                             ])
 
 import Result
@@ -65,8 +79,5 @@ Result.Result(tab=figure,
 figure.draw()
 fname = os.path.join(results_dir, 'RefSysCompare-Fref-Fcross' + '.png')
 figure.figure.savefig(fname)
-
-
-Scripts.ExportResults.run([antennas['antenna_1_H'],])
 
 plt.close('all')

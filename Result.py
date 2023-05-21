@@ -27,6 +27,7 @@ class Result():
                  axis_flag=True,
                  grid_flag=True,
                  preferred_position=None,
+                 compare_fields=None,
                  reference_2d=Geometry.Geometry.ReferenceSystem()):
         self.name=name
         self.title=title
@@ -42,6 +43,7 @@ class Result():
         self.axis_flag=axis_flag
         self.grid_flag=grid_flag
         self.preferred_position=preferred_position
+        self.compare_fields=compare_fields
         self.reference_2d=reference_2d
         
         self.listeners = []
@@ -523,7 +525,15 @@ class Result():
                                                         linewidth=0, antialiased=False)
     
     def draw_polar_patch(self):
-        field,color = self.get_field()
+        if self.compare_fields is None:
+            field,color = self.get_field()
+        else:
+            self.antenna = self.compare_fields[0]
+            f1,c1 = self.get_field()
+            self.antenna = self.compare_fields[1]
+            f2,c2 = self.get_field()
+            field = f1 - f2
+            color = c1 - c2
         
         # R = np.sin(self.antenna.mesh_theta.copy())
         
@@ -544,8 +554,7 @@ class Result():
             rgb[:,:,2] = 1
         
         self.graphical_objects = self.axes.pcolormesh(self.antenna.mesh_phi,
-                                                      # np.sin(self.antenna.mesh_theta),
-                                                      np.degrees(self.antenna.mesh_theta),
+                                                      np.sin(self.antenna.mesh_theta),
                                                       color,
                                                       shading='gouraud',
                                                       cmap='jet')
