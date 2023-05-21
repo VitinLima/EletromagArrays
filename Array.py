@@ -76,13 +76,6 @@ class Array(Antenna.Antenna):
         self.local_Fphi = np.zeros(self.local_shape)
         self.local_Ftheta = np.zeros(self.local_shape)
         
-        # symmetry_antennas = []
-        # if self.azimuth_symmetry:
-        #     antennas = [antenna.copy() for antenna in self.antennas]
-        #     for antenna in antennas:
-        #         antenna.set_orientation(azimuth=antenna.azimuth+180);
-        #     symmetry_antennas.extend(antennas)
-        
         for antenna in self.antennas:
             antenna.evaluate()
             
@@ -108,31 +101,12 @@ class Array(Antenna.Antenna):
             current = antenna.current_mag*(np.cos(phase) + 1j*np.sin(phase))
             
             p0 = np.array([x,y,z]).reshape((1,1,3))
-            Af = current*np.exp(1j*Antenna.constants['k']*(self.local_hat_k*p0).sum(2))
-            total_Ftheta = Af*Ftheta
-            total_Fphi = Af*Fphi
+            Af = current*np.exp(-1j*Antenna.constants['k']*(self.local_hat_k*p0).sum(2))
             
-            if np.abs(antenna.x)>0.002 and self.x_mirror:
-                s_Ftheta,s_Fphi = self.symmetry_function(Ftheta=Ftheta,Fphi=Fphi)
-                p1 = np.array([-x,y,z]).reshape((1,1,3))
-                s_Af = current*np.exp(1j*Antenna.constants['k']*(self.local_hat_k*p1).sum(2))
-                total_Ftheta += s_Af*s_Ftheta
-                total_Fphi += s_Af*s_Fphi
-            if np.abs(antenna.y)>0.002 and self.y_mirror:
-                s_Ftheta,s_Fphi = self.symmetry_function(Ftheta=Ftheta,Fphi=Fphi)
-                p1 = np.array([x,-y,z]).reshape((1,1,3))
-                s_Af = current*np.exp(1j*Antenna.constants['k']*(self.local_hat_k*p1).sum(2))
-                total_Ftheta += s_Af*s_Ftheta
-                total_Fphi += s_Af*s_Fphi
-            if np.abs(antenna.z)>0.002 and self.z_mirror:
-                s_Ftheta,s_Fphi = self.symmetry_function(Ftheta=Ftheta,Fphi=Fphi)
-                p1 = np.array([x,y,-z]).reshape((1,1,3))
-                s_Af = current*np.exp(1j*Antenna.constants['k']*(self.local_hat_k*p1).sum(2))
-                total_Ftheta += s_Af*s_Ftheta
-                total_Fphi += s_Af*s_Fphi
-            
-            self.local_Ftheta = self.local_Ftheta + total_Ftheta
-            self.local_Fphi = self.local_Fphi + total_Fphi
+            self.local_Ftheta = self.local_Ftheta + Af*Ftheta
+            self.local_Fphi = self.local_Fphi + Af*Fphi
+            # self.local_Ftheta = Af*Ftheta
+            # self.local_Fphi = Af*Fphi
     
         a = np.absolute(self.local_Fphi);
         b = np.absolute(self.local_Ftheta);

@@ -12,12 +12,12 @@ def load_compare_graphs(app, name, antennas, titles):
     tab = ResultFrame.ResultFrame(master=app.tabs,name=name,iy=2)
     ix = len(antennas)
     for i,antenna,title in zip(range(len(antennas)),antennas,titles):
-        Result.Result(tab=tab,
-                      name='F ' + title,
-                      antenna=antenna,field='F',
-                      plot='3d Polar',
-                      in_dB=True,
-                      preferred_position=1+i)
+        # Result.Result(tab=tab,
+        #               name='F ' + title,
+        #               antenna=antenna,field='F',
+        #               plot='3d Polar',
+        #               in_dB=True,
+        #               preferred_position=1+i)
         Result.Result(tab=tab,
                       name='Fref ' + title,
                       antenna=antenna,field='Fref',
@@ -30,16 +30,16 @@ def load_compare_graphs(app, name, antennas, titles):
                       plot='2d Polar Patch',
                       in_dB=True,
                       preferred_position=1+i+ix*2)
-        Result.Result(tab=tab,
-                      name='Ftheta ' + title,
-                      antenna=antenna,field='Ftheta',
-                      plot='2d Polar Patch',
-                      in_dB=True,
-                      preferred_position=1+i+ix*3)
-        Result.Result(tab=tab,
-                      name='Fphi ' + title,
-                      antenna=antenna,field='Fphi',
-                      plot='2d Polar Patch',
-                      in_dB=True,
-                      preferred_position=1+i+ix*4)
+        # Result.Result(tab=tab,
+        #               name='Ftheta ' + title,
+        #               antenna=antenna,field='Ftheta',
+        #               plot='2d Polar Patch',
+        #               in_dB=True,
+        #               preferred_position=1+i+ix*3)
+        # Result.Result(tab=tab,
+        #               name='Fphi ' + title,
+        #               antenna=antenna,field='Fphi',
+        #               plot='2d Polar Patch',
+        #               in_dB=True,
+        #               preferred_position=1+i+ix*4)
     app.add_tab(tab)

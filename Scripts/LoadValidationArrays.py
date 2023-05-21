@@ -12,7 +12,7 @@ def run(app=None, Ntheta=91, Nphi=91):
     import Antenna
     antenna_dir = 'C:\\Users\\160047412\\OneDrive - unb.br\\LoraAEB\\Antennas'
     
-    theta=np.linspace(0, 90, Ntheta)
+    theta=np.linspace(0, 180, Ntheta)
     phi=np.linspace(-180, 180, Nphi)
     
     antenna_path = os.path.join(antenna_dir, '1Y-4EL.csv')

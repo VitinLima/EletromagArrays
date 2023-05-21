@@ -15,7 +15,7 @@ import Geometry.Geometry
 
 class Result():
     available_plots = ['2d Graph','2d Contour','3d Surface','2d Polar Graph', '2d Polar Contour', '2d Polar Patch', '3d Polar Surface','3d Polar']
-    available_fields = ['F', 'Ftheta', 'Fphi', 'Frhcp', 'Flhcp', 'Fref', 'Fcross', 'Fc']
+    available_fields = ['F', 'Ftheta', 'Fphi', 'Frhcp', 'Flhcp', 'Fref', 'Fcross', 'Ftheta-phi', 'Fref-cross']
     # plot_projections = ['2d', '2d', '2d', '3d', '2d', '2d', ]
     def __init__(self,tab,name='New result',title='Title',
                  antenna=None,analysis=None,
@@ -235,10 +235,14 @@ class Result():
                 field = np.multiply(E, hat_i_ref).sum(2)
             elif self.field=='Fcross':
                 field = np.multiply(E, hat_i_cross).sum(2)
-            elif self.field=='Fc':
+            elif self.field=='Fref-Fcross':
                 Fref = np.abs(np.multiply(E, hat_i_ref).sum(2))
                 Fcross = np.abs(np.multiply(E, hat_i_cross).sum(2))
-                field = np.sqrt(Fref*Fref + Fcross*Fcross) - self.antenna.F
+                field = np.sqrt(Fref*Fref + Fcross*Fcross)
+            elif self.field=='Ftheta-Fphi':
+                Ftheta = np.abs(self.antenna.Ftheta)
+                Fphi = np.abs(self.antenna.Fphi)
+                field = np.sqrt(Ftheta*Ftheta + Fphi*Fphi)
         
         field_phase = np.angle(field)
         field = np.absolute(field)
@@ -540,7 +544,8 @@ class Result():
             rgb[:,:,2] = 1
         
         self.graphical_objects = self.axes.pcolormesh(self.antenna.mesh_phi,
-                                                      np.sin(self.antenna.mesh_theta),
+                                                      # np.sin(self.antenna.mesh_theta),
+                                                      np.degrees(self.antenna.mesh_theta),
                                                       color,
                                                       shading='gouraud',
                                                       cmap='jet')

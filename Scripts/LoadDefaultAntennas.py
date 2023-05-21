@@ -88,7 +88,7 @@ def run(app=None, elevation=0, azimuth=0, roll=0, Ntheta=31, Nphi=31):
     antenna_4_V.name += " V"
     antenna_4_V.evaluate()
     
-    theta=np.linspace(0, 90, Ntheta)
+    theta=np.linspace(0, 180, Ntheta)
     phi=np.linspace(-180, 180, Nphi)
     
     array_H = Array.Array(name='H',
@@ -190,7 +190,7 @@ def run(app=None, elevation=0, azimuth=0, roll=0, Ntheta=31, Nphi=31):
     array_validation_5Y_4El.antennas[2].set_position(x=0, y=-1.5, z=0)
     array_validation_5Y_4El.antennas[3].set_orientation(roll=0, elevation=-45, azimuth=135)
     array_validation_5Y_4El.antennas[3].set_position(x=0.34, y=-3.14, z=1.423)
-    array_validation_5Y_4El.antennas[4].set_orientation(roll=36, elevation=72, azimuth=14)
+    array_validation_5Y_4El.antennas[4].set_orientation(roll=0, elevation=72, azimuth=14)
     array_validation_5Y_4El.antennas[4].set_position(x=0.83, y=1.19, z=-0.72)
     array_validation_5Y_4El.evaluate()
     

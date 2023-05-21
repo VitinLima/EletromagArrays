@@ -6,6 +6,7 @@ Created on Sun Feb 26 17:48:55 2023
 """
 
 import pickle
+import time
 
 import numpy as np
 import csv
@@ -62,6 +63,8 @@ class Antenna:
         self.silent=False
         self.local_mesh_N_theta = 91
         self.local_mesh_N_phi = 91
+        
+        self.evaluation_time = 0
         
         self.local_theta = np.radians(np.linspace(0,180,self.local_mesh_N_theta))
         self.local_phi = np.radians(np.linspace(-180,180,self.local_mesh_N_phi))
@@ -379,6 +382,8 @@ class Antenna:
         if self.ok:
             return
         
+        t0 = time.time()
+        
         if self.local_mesh_flag:
             self.evaluate_local_mesh()
         if self.R_flag:
@@ -424,6 +429,7 @@ class Antenna:
         self.Fy = vector_F[:,:,1]
         self.Fz = vector_F[:,:,2]
         
+        self.evaluation_time = time.time() - t0
         self.ok = True
         self.mark_update('evaluated')
     

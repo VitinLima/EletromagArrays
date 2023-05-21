@@ -194,17 +194,77 @@ if __name__=="__main__":
     # Create the application
     app = App()
     try:
-        import Scripts.LoadDefaultAntennas
-        antennas = Scripts.LoadDefaultAntennas.run(app=app, Ntheta=21, Nphi=21)
+        theta=np.linspace(0, 180, 91)
+        phi=np.linspace(-180, 180, 91)
+        antennas_dir = 'C:\\Users\\160047412\\OneDrive - unb.br\\LoraAEB\\Antennas'
+        
+        import os
+        import Antenna
+        antenna_path = os.path.join(antennas_dir, 'antenna-Yagi-4Elements.csv')
+        Yagi4El = Antenna.Antenna(name='Yagi 4 elements',
+                            theta=theta.copy(),
+                            phi=phi.copy())
+        Yagi4El.set_evaluation_method('load file')
+        Yagi4El.evaluation_arguments['file path'] = antenna_path
+        Yagi4El.evaluation_arguments['load mesh from file'] = False
+        Yagi4El.set_orientation(elevation=0, azimuth=0, roll=0)
+        Yagi4El.evaluate()
+        Yagi4El2 = Antenna.Antenna(name='Yagi 4 elements 2',
+                            theta=theta.copy(),
+                            phi=phi.copy())
+        Yagi4El2.set_evaluation_method('load file')
+        Yagi4El2.evaluation_arguments['file path'] = antenna_path
+        Yagi4El2.evaluation_arguments['load mesh from file'] = False
+        Yagi4El2.set_orientation(elevation=0, azimuth=0, roll=0)
+        Yagi4El2.evaluate()
+        
+        import Array
+        array_validation_2Y_4El = Array.Array(name='2Y-4El',
+                                                          theta=theta,
+                                                          phi=phi,
+                                                          antennas=[Yagi4El,
+                                                                    Yagi4El2,])
+        array_validation_2Y_4El.antennas[0].set_orientation(roll=0, elevation=0, azimuth=0)
+        array_validation_2Y_4El.antennas[0].set_position(x=0, y=0, z=0)
+        array_validation_2Y_4El.antennas[0].set_current(current_mag=0)
+        array_validation_2Y_4El.antennas[1].set_orientation(roll=0, elevation=0, azimuth=45)
+        array_validation_2Y_4El.antennas[1].set_position(x=0, y=-0.5, z=0)
+        array_validation_2Y_4El.antennas[1].set_current(current_mag=1)
+        array_validation_2Y_4El.evaluate()
+        app.add_antenna(array_validation_2Y_4El)
+        
+        import ResultFrame
+        import Result
+        tab = ResultFrame.ResultFrame(master=app.tabs,name='title')
+        
+        Result.Result(tab=tab,
+                      name='name',
+                      title='Mag',
+                      antenna=array_validation_2Y_4El,
+                      field='Ftheta',
+                      color='Color by phase',
+                      plot='2d Polar Patch',
+                      in_dB=False,
+                      preferred_position=1)
+        app.add_tab(tab)
+        
+        # import Scripts.LoadDefaultAntennas
+        # antennas = Scripts.LoadDefaultAntennas.run(app=app, Ntheta=91, Nphi=91)
         
         # import Scripts.LoadValidationArrays
         # antennas.update(Scripts.LoadValidationArrays.run(app=app, Ntheta=21, Nphi=21))
+        
+        # print('Evaluation time of 1Y-4El: ' + str(antennas['array_validation_1Y_4El'].evaluation_time))
+        # print('Evaluation time of 2Y-4El: ' + str(antennas['array_validation_2Y_4El'].evaluation_time))
+        # print('Evaluation time of 3Y-4El: ' + str(antennas['array_validation_3Y_4El'].evaluation_time))
+        # print('Evaluation time of 4Y-4El: ' + str(antennas['array_validation_4Y_4El'].evaluation_time))
+        # print('Evaluation time of 5Y-4El: ' + str(antennas['array_validation_5Y_4El'].evaluation_time))
         
         # import Scripts.LoadDefaultAnalyses
         # Scripts.LoadDefaultAnalyses.run(app)
         
         # import Scripts.ValidationHFSS
-        # antennas += Scripts.ValidationHFSS.run(app=app, antennas=antennas)
+        # Scripts.ValidationHFSS.run(app=app, antennas=antennas)
         
         # Main application loop
         app.mainloop()
