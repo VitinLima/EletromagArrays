@@ -79,20 +79,22 @@ class Array(Antenna.Antenna):
         for antenna in self.antennas:
             antenna.evaluate()
             
-            fit_points = (antenna.theta, antenna.phi)
-            interp_points = (np.degrees(self.local_mesh_theta), np.degrees(self.local_mesh_phi))
+            # fit_points = (antenna.theta, antenna.phi)
+            # interp_points = (np.degrees(self.local_mesh_theta), np.degrees(self.local_mesh_phi))
             
-            values = antenna.Ftheta
-            if values.dtype==np.dtype('complex64'):
-                values = np.array(values,dtype=np.dtype('complex128'))
-            interp = RegularGridInterpolator(fit_points, values, method='linear')
-            Ftheta = interp(interp_points)
+            # values = antenna.Ftheta
+            # if values.dtype==np.dtype('complex64'):
+            #     values = np.array(values,dtype=np.dtype('complex128'))
+            # interp = RegularGridInterpolator(fit_points, values, method='linear')
+            # Ftheta = interp(interp_points)
+            Ftheta = antenna.interpolate_at(np.degrees(self.local_mesh_theta), np.degrees(self.local_mesh_phi), antenna.Ftheta)
             
-            values = antenna.Fphi
-            if values.dtype==np.dtype('complex64'):
-                values = np.array(values,dtype=np.dtype('complex128'))
-            interp = RegularGridInterpolator(fit_points, values, method='linear')
-            Fphi = interp(interp_points)
+            # values = antenna.Fphi
+            # if values.dtype==np.dtype('complex64'):
+            #     values = np.array(values,dtype=np.dtype('complex128'))
+            # interp = RegularGridInterpolator(fit_points, values, method='linear')
+            # Fphi = interp(interp_points)
+            Fphi = antenna.interpolate_at(np.degrees(self.local_mesh_theta), np.degrees(self.local_mesh_phi), antenna.Fphi)
             
             x = antenna.x
             y = antenna.y
@@ -100,8 +102,8 @@ class Array(Antenna.Antenna):
             phase = np.radians(antenna.current_phase)
             current = antenna.current_mag*(np.cos(phase) + 1j*np.sin(phase))
             
-            p0 = np.array([x,y,z]).reshape((1,1,3))
-            Af = current*np.exp(-1j*Antenna.constants['k']*(self.local_hat_k*p0).sum(2))
+            p0 = Antenna.constants['lam']*np.array([x,y,z]).reshape((1,1,3))
+            Af = current*np.exp(1j*Antenna.constants['k']*(self.local_hat_k*p0).sum(2))
             
             self.local_Ftheta = self.local_Ftheta + Af*Ftheta
             self.local_Fphi = self.local_Fphi + Af*Fphi

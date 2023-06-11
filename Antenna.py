@@ -325,6 +325,53 @@ class Antenna:
         self.LG_interp_hat_theta = MyMath.rotate(MyMath.rotate(MyMath.rotate(L_interp_hat_theta, Rtheta), Rphi), LG_R)
         self.LG_interp_hat_phi = MyMath.rotate(MyMath.rotate(MyMath.rotate(L_interp_hat_phi, Rtheta), Rphi), LG_R)
     
+    def get_reference_polarization(self):
+        sp = np.sin(self.mesh_phi)
+        cp = np.cos(self.mesh_phi)
+        st = np.sin(self.mesh_theta)
+        ct = np.cos(self.mesh_theta)
+        hat_i_ref_x = - (1 - ct)*sp*cp
+        hat_i_ref_y = (1 - sp*sp*(1 - ct))
+        hat_i_ref_z = - st*sp
+        hat_i_ref = np.array([hat_i_ref_x, hat_i_ref_y, hat_i_ref_z]).swapaxes(0, 1).swapaxes(1, 2)
+        
+        hat_i_cross_x = (1 - cp*cp*(1-ct))
+        hat_i_cross_y = - (1-ct)*sp*cp
+        hat_i_cross_z = - st*cp
+        hat_i_cross = np.array([hat_i_cross_x, hat_i_cross_y, hat_i_cross_z]).swapaxes(0, 1).swapaxes(1, 2)
+        
+        return hat_i_ref, hat_i_cross
+    
+    def get_polarization_matrix(self):
+        sp = np.sin(self.mesh_phi)
+        cp = np.cos(self.mesh_phi)
+        st = np.sin(self.mesh_theta)
+        ct = np.cos(self.mesh_theta)
+        
+        a_11 = 1 - st*st*cp*cp
+        a_12 = - st*st*sp*cp
+        a_13 = - st*ct*cp
+        a_21 = - st*st*sp*cp
+        a_22 = 1 - st*st*sp*sp
+        a_23 = - st*ct*sp
+        a_31 = - st*ct*cp
+        a_32 = - st*ct*sp
+        a_33 = 1 - ct*ct
+        matrix = np.array([[a_11, a_12, a_13],
+                       [a_21, a_22, a_23],
+                       [a_31, a_32, a_33]])
+        return matrix.swapaxes(0,2).swapaxes(1,3)
+    
+    def calculate_reference_fields(self):
+        F = np.array([self.Fx, self.Fy, self.Fz]).swapaxes(0, 1).swapaxes(1, 2)
+        polarization_matrix = self.get_polarization_matrix()
+        E = np.squeeze(polarization_matrix@F[:,:,:,np.newaxis])
+        
+        hat_i_ref, hat_i_cross = self.get_reference_polarization(antenna.mesh_theta, antenna.mesh_phi)
+        
+        self.Fref = np.multiply(E, hat_i_ref).sum(2)
+        self.Fcross = np.multiply(E, hat_i_cross).sum(2)
+    
     def evaluate_local_field(self):
         self.local_field_flag = False
         
@@ -364,6 +411,9 @@ class Antenna:
             #     raise Exception('Tried to evaluate expression without expression.')
         # except Exception as e:
         #     print(e)
+        
+        # self.local_Fphi *= self.current_mag*np.exp(1j*np.radians(self.current_phase))
+        # self.local_Ftheta *= self.current_mag*np.exp(1j*np.radians(self.current_phase))
     
         a = np.absolute(self.local_Fphi);
         b = np.absolute(self.local_Ftheta);
@@ -618,6 +668,18 @@ class Antenna:
         self.local_Ftheta = np.broadcast_to(self.local_Ftheta,self.local_shape)
         self.local_Fphi = np.broadcast_to(self.local_Fphi,self.local_shape)
     
+    def interpolate_at(self, interp_mesh_theta_deg, interp_mesh_phi_deg, field):
+        fit_points = (self.theta, self.phi)
+        interp_points = (interp_mesh_theta_deg, interp_mesh_phi_deg)
+        
+        values = field
+        if values.dtype==np.dtype('complex64'):
+            values = np.array(values,dtype=np.dtype('complex128'))
+        interp = RegularGridInterpolator(fit_points, values, method='linear')
+        interp_field = interp(interp_points)
+        
+        return interp_field
+    
     def copy(self):
         antenna = Antenna(constants=constants,name=self.name,
                           current_mag=self.current_mag,
@@ -687,3 +749,14 @@ if __name__=='__main__':
     def export_to_file(self, filename):
         with open(filename, mode='wb') as f:
             pickle.dump(self, f)
+
+def load_from_file(file_path, name, theta, phi, load_mesh_from_file):
+    antenna = Antenna(name=name,
+                      theta=theta.copy(),
+                      phi=phi.copy())
+    antenna.set_evaluation_method('load file')
+    antenna.evaluation_arguments['file path'] = file_path
+    antenna.evaluation_arguments['load mesh from file'] = load_mesh_from_file
+    antenna.evaluate()
+    
+    return antenna

@@ -12,43 +12,49 @@ import pickle
 import Antenna
 import Analysis
 import SpecialOptim
-import LoadDefaultAntennas
+
+import Scripts.AntennasLoaders.LoadHFSSYagis
+
+antennas = Scripts.AntennasLoaders.LoadHFSSYagis.run(Ntheta=91, Nphi=91)
 
 theta=np.linspace(0, 180, 91)
 phi=np.linspace(-180, 180, 91)
-antenna_1_H,antenna_2_H,antenna_3_H,antenna_4_H,antenna_1_V,antenna_2_V,antenna_3_V,antenna_4_V = LoadDefaultAntennas.load_default_antennas(roll=90)
 
 F = Analysis.Analysis(name='F',expression='F')
-Ftheta = Analysis.Analysis(name='Ftheta',expression='Ftheta',color_expression='')
-Fphi = Analysis.Analysis(name='Fphi',expression='Fphi',color_expression='')
+Fref = Analysis.Analysis(name='Fref',expression='Fref',color_expression='')
+Fcross = Analysis.Analysis(name='Fcross',expression='Fcross',color_expression='')
 Frhcp = Analysis.Analysis(name='Frhcp',expression='Frhcp',color_expression='')
 Flhcp = Analysis.Analysis(name='Flhcp',expression='Flhcp',color_expression='')
     
-target_distribution_phi = Antenna.Antenna(name='Target Phi',
+target_distribution_cross = Antenna.Antenna(name='Target Cross',
                               theta=theta.copy(),
                               phi=phi.copy())
-target_distribution_phi.evaluate_as = 'expressions'
-target_distribution_phi.evaluation_arguments['expression theta'] = '0'
-target_distribution_phi.evaluation_arguments['expression phi'] = '(U(-pi/2,phi)-U(pi/2,phi))*(U(radians(80),theta)-U(radians(100),theta))'
-target_distribution_phi.set_orientation(elevation=-90,azimuth=90)
-target_distribution_phi.evaluate()
+target_distribution_cross.evaluate_as = 'expressions'
+target_distribution_cross.evaluation_arguments['expression theta'] = '0'
+target_distribution_cross.evaluation_arguments['expression phi'] = '(U(-pi/2,phi)-U(pi/2,phi))*(U(radians(80),theta)-U(radians(100),theta))'
+target_distribution_cross.set_orientation(elevation=-90,azimuth=90)
+target_distribution_cross.evaluate()
 
 # weight_mask = np.ones(target_distribution_theta.shape)
 # weight_mask[target_distribution_theta.mesh_theta>np.pi/2] = 0.5
 
 optim = SpecialOptim.SpecialOptim(
                      available_antennas = [
-                                # antenna_1_V,
-                                antenna_2_V,
-                                antenna_3_V,
-                                antenna_4_V
+                                # antennas['hfss_yagi1EL'],
+                                # antennas['hfss_yagi2EL'],
+                                # antennas['hfss_yagi3EL'],
+                                # antennas['hfss_yagi4EL'],
+                                # antennas['hfss_yagi1EL_V'],
+                                antennas['hfss_yagi2EL_V'],
+                                antennas['hfss_yagi3EL_V'],
+                                antennas['hfss_yagi4EL_V']
                          ],
                      analyses = [
-                            Ftheta,
-                            Fphi,
+                            Fref,
+                            Fcross,
                          ],
                      # weights=[1],
-                     target_antenna = target_distribution_phi,
+                     target_antenna = target_distribution_cross,
                      variables=[
                             'elevation',
                             # 'azimuth',
@@ -71,7 +77,7 @@ try:
 finally:
     for k in optim.best_results.keys():
         result = optim.best_results[k]
-        filename = os.path.join('Optimization Results Phi','best array with {N} antenna and cost {cost}.dat'.format(N=k, cost=result.cost))
+        filename = os.path.join('Optimization Results Cross','best array with {N} antenna and cost {cost}.dat'.format(N=k, cost=result.cost))
         with open(filename, mode='wb') as f:
             result.working_array.listeners = []
             pickle.dump(result.working_array, f)
@@ -100,17 +106,17 @@ import Result
 app = App.App()
 try:
     app.add_antenna(array)
-    app.add_antenna(target_distribution_phi)
+    app.add_antenna(target_distribution_cross)
     
     app.add_analysis(F)
-    app.add_analysis(Ftheta)
-    app.add_analysis(Fphi)
+    app.add_analysis(Fref)
+    app.add_analysis(Fcross)
     app.add_analysis(Frhcp)
     app.add_analysis(Flhcp)
     
     tab = ResultFrame.ResultFrame(master=app.tabs)
     result = Result.Result(tab=tab,
-                    name='Array Phi',
+                    name='Array Cross',
                     antenna=array,analysis=F,
                     plot='2d Polar Patch')
     app.add_tab(tab)

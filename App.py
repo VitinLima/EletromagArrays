@@ -194,23 +194,23 @@ if __name__=="__main__":
     # Create the application
     app = App()
     try:
-        import Scripts.LoadDefaultAntennas
-        antennas = Scripts.LoadDefaultAntennas.run(app=app, Ntheta=91, Nphi=91)
+        # import Scripts.LoadDefaultAntennas
+        # antennas = Scripts.LoadDefaultAntennas.run(app=app, Ntheta=91, Nphi=91)
         
-        import Scripts.LoadValidationArrays
-        antennas.update(Scripts.LoadValidationArrays.run(app=app, Ntheta=21, Nphi=21))
+        # import Scripts.LoadValidationArrays
+        # antennas.update(Scripts.LoadValidationArrays.run(app=app, Ntheta=21, Nphi=21))
         
-        print('Evaluation time of 1Y-4El: ' + str(antennas['array_validation_1Y_4El'].evaluation_time))
-        print('Evaluation time of 2Y-4El: ' + str(antennas['array_validation_2Y_4El'].evaluation_time))
-        print('Evaluation time of 3Y-4El: ' + str(antennas['array_validation_3Y_4El'].evaluation_time))
-        print('Evaluation time of 4Y-4El: ' + str(antennas['array_validation_4Y_4El'].evaluation_time))
-        print('Evaluation time of 5Y-4El: ' + str(antennas['array_validation_5Y_4El'].evaluation_time))
+        # print('Evaluation time of 1Y-4El: ' + str(antennas['array_validation_1Y_4El'].evaluation_time))
+        # print('Evaluation time of 2Y-4El: ' + str(antennas['array_validation_2Y_4El'].evaluation_time))
+        # print('Evaluation time of 3Y-4El: ' + str(antennas['array_validation_3Y_4El'].evaluation_time))
+        # print('Evaluation time of 4Y-4El: ' + str(antennas['array_validation_4Y_4El'].evaluation_time))
+        # print('Evaluation time of 5Y-4El: ' + str(antennas['array_validation_5Y_4El'].evaluation_time))
         
-        # import Scripts.LoadDefaultAnalyses
-        # Scripts.LoadDefaultAnalyses.run(app)
+        # # import Scripts.LoadDefaultAnalyses
+        # # Scripts.LoadDefaultAnalyses.run(app)
         
-        import Scripts.ValidationHFSS
-        Scripts.ValidationHFSS.run(app=app, antennas=antennas)
+        # import Scripts.ValidationHFSS
+        # Scripts.ValidationHFSS.run(app=app, antennas=antennas)
         
         # Main application loop
         app.mainloop()

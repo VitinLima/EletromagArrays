@@ -44,6 +44,10 @@ class Analysis:
                 field = np.absolute(antenna.Ftheta)
             elif self.expression=='Fphi':
                 field = np.absolute(antenna.Fphi)
+            elif self.expression=='Fref':
+                field = np.absolute(antenna.Fref)
+            elif self.expression=='Fcross':
+                field = np.absolute(antenna.Fcross)
             elif self.expression=='Frhcp':
                 field = np.absolute(antenna.Frhcp)
             elif self.expression=='Flhcp':
