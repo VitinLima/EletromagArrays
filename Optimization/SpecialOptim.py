@@ -2,7 +2,7 @@
 """
 Created on Wed Mar 15 01:38:53 2023
 
-@author: 160047412
+@author: Vitinho
 """
 
 import numpy as np
@@ -52,6 +52,7 @@ class SpecialOptim:
         
         self.best_results = dict()
         
+        self.number_of_evaluations = 0
         for r in range(self.N_start,self.N_stop+1):
             for iterating_antennas in itertools.product(self.available_antennas, repeat=r):
                 antennas = [antenna.copy() for antenna in iterating_antennas]
@@ -76,6 +77,7 @@ class SpecialOptim:
                                      weights=self.weights,
                                      disp=self.disp)
                 optim.run()
+                self.number_of_evaluations += optim.number_of_evaluations
                 print('\tcost: {}'.format(optim.cost))
                 if r in self.best_results.keys():
                     if optim.cost < self.best_results[r].cost:

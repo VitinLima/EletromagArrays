@@ -3,7 +3,7 @@
 """
 Created on Sun Jun 11 22:42:28 2023
 
-@author: vitinho
+@author: Vitinho
 """
 
 import sys
@@ -66,35 +66,12 @@ optim = Optimization.Optimization(x_map=x_map,
                      working_array=optimizing_array,
                      target_antenna=target_antenna,
                      analyses=[Fref, Fcross],
-                     disp=True)
+                     disp=False)
 
 try:
     optim.run()
 finally:
     print('\tcost: {}'.format(optim.cost))
-    # for k in optim.best_results.keys():
-    #     result = optim.best_results[k]
-    #     filename = os.path.join(export_directory,'best array with {N} antenna and cost {cost}.dat'.format(N=k, cost=result.cost))
-    #     with open(filename, mode='wb') as f:
-    #         result.working_array.listeners = []
-    #         pickle.dump(result.working_array, f)
-
-# array = optim.best_result.working_array
-# print('final cost: {}'.format(optim.best_result.cost))
-# print('working rhcp array have {N} antennas:'.format(N=len(array.antennas)))
-# for i in range(len(array.antennas)):
-#     antenna = array.antennas[i]
-#     print('\tantenna {i}: '.format(i=i) + antenna.name)
-#     print('\t\televation: {e}'.format(e=antenna.elevation))
-#     print('\t\tazimuth: {a}'.format(a=antenna.azimuth))
-#     print('\t\troll: {a}'.format(a=antenna.roll))
-#     print('\t\tx: {x}'.format(x=antenna.x))
-#     print('\t\ty: {y}'.format(y=antenna.y))
-#     print('\t\tz: {z}'.format(z=antenna.z))
-#     print('\t\tcurrent magnitude: {magnitude}'.format(magnitude=antenna.current_mag))
-#     print('\t\tcurrent phase: {phase}'.format(phase=antenna.current_phase))
-
-# os.system('shutdown /h')
 
 import App
 import ResultFrame

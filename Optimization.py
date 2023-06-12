@@ -2,7 +2,7 @@
 """
 Created on Mon Mar  6 15:08:48 2023
 
-@author: 160047412
+@author: Vitinho
 """
 
 import numpy as np
@@ -62,6 +62,7 @@ class Optimization:
         self.working_array.local_field_flag = True
         self.working_array.ok = False
         self.working_array.evaluate()
+        self.number_of_evaluations += 1
     
     def iter_callback(self, xk, state=None):
         print('cost: {}'.format(self.cost))
@@ -135,6 +136,7 @@ class Optimization:
                     antenna=antenna,
                     v_cb=v_cb
                     ))
+        self.number_of_evaluations = 0
         self.result = scipy.optimize.minimize(fun=self.cost_function,x0=np.array(x),
                                     method=self.method,
                                     bounds=bounds,
