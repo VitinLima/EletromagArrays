@@ -440,6 +440,10 @@ class Result():
         
         return field
     
+    def interpolate_field(mesh_theta, mesh_phi, field):
+        i_theta = np.linspace(0, 180, 21)
+        i_phi = np.linspace(-180,180, 21)
+    
     def draw_graph(self):
         angles = np.radians(np.linspace(-180,180,181))
         points = np.zeros((len(angles),3))
@@ -487,11 +491,32 @@ class Result():
     
     def draw_polar3d(self):
         field,color = self.get_field()
+        
+        # interp_theta_deg = np.linspace(0,180,61)
+        # interp_phi_deg = np.linspace(-180,180,61)
+        
+        # interp_mesh_phi_deg,interp_mesh_theta_deg = np.meshgrid(interp_phi_deg,interp_theta_deg)
+        
+        # interp_mesh_theta_rad = np.pi*interp_mesh_theta_deg/180
+        # interp_mesh_phi_rad = np.pi*interp_mesh_phi_deg/180
+        
+        # ct = np.cos(interp_mesh_theta_rad)
+        # st = np.sin(interp_mesh_theta_rad)
+        # cp = np.cos(interp_mesh_phi_rad)
+        # sp = np.sin(interp_mesh_phi_rad)
+        # interp_hat_k = np.zeros((len(interp_theta_deg), len(interp_phi_deg), 3))
+        # interp_hat_k[:,:,0] = st*cp
+        # interp_hat_k[:,:,1] = st*sp
+        # interp_hat_k[:,:,2] = ct
+        
+        # field = self.antenna.interpolate_at(interp_mesh_theta_deg, interp_mesh_phi_deg, field)
+        
         position = np.array([self.antenna.x,self.antenna.y,self.antenna.z])
         min_field = np.min(field)
         if min_field < 0:
             field -= min_field
         R = field[:,:,np.newaxis]*self.antenna.hat_k
+        # R = field[:,:,np.newaxis]*interp_hat_k
     
         jet = plt.colormaps['jet']
         color_max = color.max()
@@ -514,6 +539,13 @@ class Result():
     
     def draw_surface(self):
         field,color = self.get_field()
+        
+        interp_x = np.linspace(0,90,21)
+        interp_y = np.linspace(-180,180,21)
+        
+        interp_mesh_x,interp_mesh_y = np.meshgrid(interp_x,interp_y)
+        
+        field = self.antenna.interpolate_at(interp_mesh_x, interp_mesh_y, field)
     
         jet = plt.colormaps['jet']
         if str(type(color))=="<class 'NoneType'>":
@@ -530,14 +562,21 @@ class Result():
             rgb[:,:,3] = 1
             rgb[:,:,2] = 1
         
-        x = np.degrees(self.antenna.mesh_phi)
-        y = np.degrees(self.antenna.mesh_theta)
-        self.graphical_objects = self.axes.plot_surface(x, y, field,
+        # x = np.degrees(self.antenna.mesh_phi)
+        # y = np.degrees(self.antenna.mesh_theta)
+        self.graphical_objects = self.axes.plot_surface(interp_mesh_x, interp_mesh_y, field,
                                                         rstride=1, cstride=1, facecolors=rgb,
                                                         linewidth=0, antialiased=False)
     
     def draw_polar_surface(self):
         field,color = self.get_field()
+        
+        interp_theta_deg = np.linspace(0,90,21)
+        interp_phi_deg = np.linspace(-180,180,21)
+        
+        interp_mesh_phi_deg,interp_mesh_theta_deg = np.meshgrid(interp_phi_deg,interp_theta_deg)
+        
+        field = self.antenna.interpolate_at(interp_mesh_theta_deg, interp_mesh_phi_deg, field)
     
         jet = plt.colormaps['jet']
         color_max = color.max()
@@ -557,8 +596,8 @@ class Result():
         # x = R*np.cos(self.antenna.mesh_phi)
         # y = R*np.sin(self.antenna.mesh_phi)
         
-        self.graphical_objects = self.axes.plot_surface(self.antenna.mesh_phi,
-                                                        np.sin(self.antenna.mesh_theta.copy()),
+        self.graphical_objects = self.axes.plot_surface(np.radians(interp_mesh_phi_deg),
+                                                        np.sin(np.radians(interp_mesh_theta_deg)),
                                                         field,
                                                         rstride=1, cstride=1, facecolors=rgb,
                                                         linewidth=0, antialiased=False)
@@ -566,8 +605,8 @@ class Result():
     def draw_polar_patch(self):
         field,color = self.get_field()
         
-        interp_theta_deg = np.linspace(0,90,81)
-        interp_phi_deg = np.linspace(-180,180,91)
+        interp_theta_deg = np.linspace(0,90,21)
+        interp_phi_deg = np.linspace(-180,180,21)
         
         interp_mesh_phi_deg,interp_mesh_theta_deg = np.meshgrid(interp_phi_deg,interp_theta_deg)
         
@@ -617,6 +656,8 @@ class Result():
             rgb = np.zeros(tuple(rgb))
             rgb[:,:,3] = 1
             rgb[:,:,2] = 1
+        
+        # i_phi, i_theta, i_c = self.interpolate_field(self.antenna.mesh_phi, self.antenna.mesh_theta, color)
         
         self.graphical_objects = self.axes.pcolormesh(self.antenna.mesh_phi,
                                                       self.antenna.mesh_theta,

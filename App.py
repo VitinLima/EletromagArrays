@@ -171,7 +171,7 @@ class App(tk.Tk):
         self.mark_update('constants update')
     
     def mainloop(self):
-        self.after(100,self.updater_thread)
+        # self.after(100,self.updater_thread)
         tk.Tk.mainloop(self)
     
     def updater_thread(self):
@@ -187,7 +187,7 @@ class App(tk.Tk):
             if not tab.ok:
                 tab.update()
         
-        self.after(2000,self.updater_thread)
+        # self.after(2000,self.updater_thread)
 
 if __name__=="__main__":
     

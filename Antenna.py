@@ -367,7 +367,7 @@ class Antenna:
         polarization_matrix = self.get_polarization_matrix()
         E = np.squeeze(polarization_matrix@F[:,:,:,np.newaxis])
         
-        hat_i_ref, hat_i_cross = self.get_reference_polarization(antenna.mesh_theta, antenna.mesh_phi)
+        hat_i_ref, hat_i_cross = self.get_reference_polarization()
         
         self.Fref = np.multiply(E, hat_i_ref).sum(2)
         self.Fcross = np.multiply(E, hat_i_cross).sum(2)
@@ -531,6 +531,20 @@ class Antenna:
         
         self.Ftheta = Ftheta*(hat_theta_global*hat_theta_local).sum(2) + Fphi*(hat_theta_global*hat_phi_local).sum(2)
         self.Fphi = Ftheta*(hat_phi_global*hat_theta_local).sum(2) + Fphi*(hat_phi_global*hat_phi_local).sum(2)
+        
+        a = np.absolute(self.Fphi);
+        b = np.absolute(self.Ftheta);
+        self.F = np.sqrt(a*a + b*b);
+        
+        self.Frhcp = (self.Ftheta - 1j*self.Fphi)/MyMath.sqrt2
+        self.Flhcp = (self.Ftheta + 1j*self.Fphi)/MyMath.sqrt2
+        
+        vector_F = self.Ftheta[:,:,np.newaxis]*self.hat_theta + self.Fphi[:,:,np.newaxis]*self.hat_phi
+        self.Fx = vector_F[:,:,0]
+        self.Fy = vector_F[:,:,1]
+        self.Fz = vector_F[:,:,2]
+        
+        self.calculate_reference_fields()
     
     def evaluate(self):
         if self.ok:
@@ -583,6 +597,8 @@ class Antenna:
         self.Fy = vector_F[:,:,1]
         self.Fz = vector_F[:,:,2]
         
+        self.calculate_reference_fields()
+        
         self.evaluation_time = time.time() - t0
         self.ok = True
         self.mark_update('evaluated')
@@ -599,9 +615,9 @@ class Antenna:
         pass
     
     def load_file(self, file_path):
-        if 'loaded file' in self.evaluation_arguments.keys():
-            if self.evaluation_arguments['loaded file']==file_path and not self.evaluation_arguments['force reload']:
-                return
+        # if 'loaded file' in self.evaluation_arguments.keys():
+        #     if self.evaluation_arguments['loaded file']==file_path and not self.evaluation_arguments['force reload']:
+        #         return
         with open(file_path,'r') as f:
             reader = csv.reader(f)
             
@@ -691,35 +707,36 @@ class Antenna:
         
         antenna.evaluation_arguments = self.evaluation_arguments.copy()
         
-        antenna.LG_interp_hat_theta = self.LG_interp_hat_theta.copy()
-        antenna.LG_interp_hat_phi = self.LG_interp_hat_phi.copy()
-        antenna.GL_interp_mesh_theta = self.GL_interp_mesh_theta.copy()
-        antenna.GL_interp_mesh_phi = self.GL_interp_mesh_phi.copy()
+        # antenna.LG_interp_hat_theta = self.LG_interp_hat_theta.copy()
+        # antenna.LG_interp_hat_phi = self.LG_interp_hat_phi.copy()
+        # antenna.GL_interp_mesh_theta = self.GL_interp_mesh_theta.copy()
+        # antenna.GL_interp_mesh_phi = self.GL_interp_mesh_phi.copy()
         
-        antenna.local_F = self.local_F.copy()
-        antenna.local_Ftheta = self.local_Ftheta.copy()
-        antenna.local_Fphi = self.local_Fphi.copy()
-        antenna.local_Frhcp = self.local_Frhcp.copy()
-        antenna.local_Flhcp = self.local_Flhcp.copy()
+        # antenna.local_F = self.local_F.copy()
+        # antenna.local_Ftheta = self.local_Ftheta.copy()
+        # antenna.local_Fphi = self.local_Fphi.copy()
+        # antenna.local_Frhcp = self.local_Frhcp.copy()
+        # antenna.local_Flhcp = self.local_Flhcp.copy()
         
-        antenna.F = self.F.copy()
-        antenna.Ftheta = self.Ftheta.copy()
-        antenna.Fphi = self.Fphi.copy()
-        antenna.Frhcp = self.Frhcp.copy()
-        antenna.Flhcp = self.Flhcp.copy()
-        antenna.Fx = self.Fx.copy()
-        antenna.Fy = self.Fy.copy()
-        antenna.Fz = self.Fz.copy()
+        # antenna.F = self.F.copy()
+        # antenna.Ftheta = self.Ftheta.copy()
+        # antenna.Fphi = self.Fphi.copy()
+        # antenna.Frhcp = self.Frhcp.copy()
+        # antenna.Flhcp = self.Flhcp.copy()
+        # antenna.Fx = self.Fx.copy()
+        # antenna.Fy = self.Fy.copy()
+        # antenna.Fz = self.Fz.copy()
         
-        antenna.local_mesh_flag = self.local_mesh_flag
-        antenna.R_flag = self.R_flag
-        antenna.Rtheta_flag = self.Rtheta_flag
-        antenna.Rphi_flag = self.Rphi_flag
-        antenna.hats_flag = self.hats_flag
-        antenna.local_field_flag = self.local_field_flag
-        antenna.LG_interp_mesh_flag = self.LG_interp_mesh_flag
-        antenna.ok = self.ok
+        # antenna.local_mesh_flag = self.local_mesh_flag
+        # antenna.R_flag = self.R_flag
+        # antenna.Rtheta_flag = self.Rtheta_flag
+        # antenna.Rphi_flag = self.Rphi_flag
+        # antenna.hats_flag = self.hats_flag
+        # antenna.local_field_flag = self.local_field_flag
+        # antenna.LG_interp_mesh_flag = self.LG_interp_mesh_flag
+        # antenna.ok = self.ok
         
+        antenna.evaluate()
         return antenna
 
 if __name__=='__main__':

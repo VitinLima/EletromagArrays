@@ -101,7 +101,7 @@ class Optimization:
             for variable in entry['variables']:
                 if variable=='elevation':
                     v_cb=self.set_elevation
-                    x.append((antenna.elevation/360)+0.5)
+                    x.append((antenna.elevation/180)+0.5)
                     bounds.append((0.0,1.0))
                 elif variable=='azimuth':
                     v_cb=self.set_azimuth
@@ -144,10 +144,10 @@ class Optimization:
         antenna.set_orientation(elevation=(x-0.5)*180)
     
     def set_azimuth(self,antenna,x):
-        antenna.set_orientation(azimuth=(x-0.5)*180)
+        antenna.set_orientation(azimuth=(x-0.5)*360)
     
     def set_roll(self,antenna,x):
-        antenna.set_orientation(roll=(x-0.5)*180)
+        antenna.set_orientation(roll=(x-0.5)*360)
     
     def set_x(self,antenna,x):
         antenna.set_position(x=3*x)
