@@ -5,9 +5,15 @@ Created on Fri Apr  7 18:02:32 2023
 @author: Vitinho
 """
 
-import numpy as np
+import sys
 import os
+path = os.path.split(os.path.split(__file__)[0])[0]
+sys.path.insert(0, path)
+
+import time
 import pickle
+
+import numpy as np
 
 import Antenna
 import Analysis
@@ -15,13 +21,17 @@ import SpecialOptim
 
 import Scripts.AntennasLoaders.LoadHFSSYagis
 
-antennas = Scripts.AntennasLoaders.LoadHFSSYagis.run(Ntheta=91, Nphi=91, elevation=-90)
-export_directory = '/media/vitinho/DADOS/TCC/Python/ExportedResults/Optimization Results Cross'
+Ntheta=91
+Nphi=91
+
+antennas = Scripts.AntennasLoaders.LoadHFSSYagis.run(Ntheta=Ntheta, Nphi=Nphi, elevation=-90)
+
+export_directory = '/media/vitinho/DADOS/TCC/Python/ExportedResults/OptimizationCross'
 if not os.path.exists(export_directory):
     os.mkdir(export_directory)
 
-theta=np.linspace(0, 180, 91)
-phi=np.linspace(-180, 180, 91)
+theta=np.linspace(0, 180, Ntheta)
+phi=np.linspace(-180, 180, Nphi)
 
 F = Analysis.Analysis(name='F',expression='F')
 Fref = Analysis.Analysis(name='Fref',expression='Fref',color_expression='')
@@ -29,14 +39,14 @@ Fcross = Analysis.Analysis(name='Fcross',expression='Fcross',color_expression=''
 Frhcp = Analysis.Analysis(name='Frhcp',expression='Frhcp',color_expression='')
 Flhcp = Analysis.Analysis(name='Flhcp',expression='Flhcp',color_expression='')
     
-target_distribution_cross = Antenna.Antenna(name='Target Cross',
+target_antenna = Antenna.Antenna(name='Target Cross',
                               theta=theta.copy(),
                               phi=phi.copy())
-target_distribution_cross.evaluate_as = 'expressions'
-target_distribution_cross.evaluation_arguments['expression theta'] = '0'
-target_distribution_cross.evaluation_arguments['expression phi'] = '(U(-pi/2,phi)-U(pi/2,phi))*(U(radians(80),theta)-U(radians(100),theta))'
-target_distribution_cross.set_orientation(elevation=-90,azimuth=90)
-target_distribution_cross.evaluate()
+target_antenna.evaluate_as = 'expressions'
+target_antenna.evaluation_arguments['expression theta'] = '0'
+target_antenna.evaluation_arguments['expression phi'] = '(U(-pi/2,phi)-U(pi/2,phi))*(U(radians(80),theta)-U(radians(100),theta))'
+target_antenna.set_orientation(elevation=-90,azimuth=90)
+target_antenna.evaluate()
 
 # weight_mask = np.ones(target_distribution_theta.shape)
 # weight_mask[target_distribution_theta.mesh_theta>np.pi/2] = 0.5
@@ -57,7 +67,7 @@ optim = SpecialOptim.SpecialOptim(
                             Fcross,
                          ],
                      # weights=[1],
-                     target_antenna = target_distribution_cross,
+                     target_antenna = target_antenna,
                      variables=[
                             'elevation',
                             # 'azimuth',
@@ -72,11 +82,13 @@ optim = SpecialOptim.SpecialOptim(
                      N_stop = 2,
                      # weight_mask=weight_mask,
                      # method = 'L-BFGS-B',
-                      disp=True,
+                      disp=False,
                      )
 
 try:
+    start_time = time.time()
     optim.run()
+    elapsed_time = time.time()-start_time
 finally:
     for k in optim.best_results.keys():
         result = optim.best_results[k]
@@ -85,11 +97,13 @@ finally:
             result.working_array.listeners = []
             pickle.dump(result.working_array, f)
 
-array = optim.best_result.working_array
+result_array = optim.best_result.working_array
+print('elapsed time was ' + str(elapsed_time))
+print('number of evaluations was ' + str(optim.number_of_evaluations))
 print('final cost: {}'.format(optim.best_result.cost))
-print('working rhcp array have {N} antennas:'.format(N=len(array.antennas)))
-for i in range(len(array.antennas)):
-    antenna = array.antennas[i]
+print('final array have {N} antennas:'.format(N=len(result_array.antennas)))
+for i in range(len(result_array.antennas)):
+    antenna = result_array.antennas[i]
     print('\tantenna {i}: '.format(i=i) + antenna.name)
     print('\t\televation: {e}'.format(e=antenna.elevation))
     print('\t\tazimuth: {a}'.format(a=antenna.azimuth))
@@ -100,6 +114,16 @@ for i in range(len(array.antennas)):
     print('\t\tcurrent magnitude: {magnitude}'.format(magnitude=antenna.current_mag))
     print('\t\tcurrent phase: {phase}'.format(phase=antenna.current_phase))
 
+import Scripts.ExportResults
+
+target_antenna.name = 'Target Antenna'
+result_array.name = 'Result Array'
+
+Scripts.ExportResults.run([
+    target_antenna,
+    result_array,
+    ], export_directory)
+
 # os.system('shutdown /h')
 
 import App
@@ -108,8 +132,8 @@ import Result
 
 app = App.App()
 try:
-    app.add_antenna(array)
-    app.add_antenna(target_distribution_cross)
+    app.add_antenna(result_array)
+    app.add_antenna(target_antenna)
     
     app.add_analysis(F)
     app.add_analysis(Fref)
@@ -123,8 +147,8 @@ try:
     tab = ResultFrame.ResultFrame(master=app.tabs,name=field,iy=2)
     Result.Result(tab=tab,
                   title='',
-                  name='Array Cross',
-                  antenna=array,
+                  name='Result F',
+                  antenna=result_array,
                   field=field,
                   plot=plot,
                   ticks_flag=False,
@@ -132,8 +156,8 @@ try:
                   preferred_position=1)
     Result.Result(tab=tab,
                   title='',
-                  name='Target Cross',
-                  antenna=target_distribution_cross,
+                  name='Target F',
+                  antenna=target_antenna,
                   field=field,
                   plot=plot,
                   ticks_flag=False,
@@ -147,8 +171,8 @@ try:
     tab = ResultFrame.ResultFrame(master=app.tabs,name=field,iy=2)
     Result.Result(tab=tab,
                   title='',
-                  name='Array Cross',
-                  antenna=array,
+                  name='Result Ref',
+                  antenna=result_array,
                   field=field,
                   plot=plot,
                   ticks_flag=False,
@@ -156,8 +180,8 @@ try:
                   preferred_position=1)
     Result.Result(tab=tab,
                   title='',
-                  name='Target Cross',
-                  antenna=target_distribution_cross,
+                  name='Target Ref',
+                  antenna=target_antenna,
                   field=field,
                   plot=plot,
                   ticks_flag=False,
@@ -171,8 +195,8 @@ try:
     tab = ResultFrame.ResultFrame(master=app.tabs,name=field,iy=2)
     Result.Result(tab=tab,
                   title='',
-                  name='Array Cross',
-                  antenna=array,
+                  name='Result Cross',
+                  antenna=result_array,
                   field=field,
                   plot=plot,
                   ticks_flag=False,
@@ -181,7 +205,7 @@ try:
     Result.Result(tab=tab,
                   title='',
                   name='Target Cross',
-                  antenna=target_distribution_cross,
+                  antenna=target_antenna,
                   field=field,
                   plot=plot,
                   ticks_flag=False,

@@ -194,17 +194,25 @@ if __name__=="__main__":
     # Create the application
     app = App()
     try:
-        # import Scripts.LoadDefaultAntennas
-        # antennas = Scripts.LoadDefaultAntennas.run(app=app, Ntheta=91, Nphi=91)
+        import Scripts.AntennasLoaders.LoadHFSSYagis
+        import Scripts.AntennasLoaders.LoadHFSSValidationArrays
+        import Scripts.AntennasLoaders.LoadValidationArrays
+
+        Ntheta=91
+        Nphi=91
+
+        antennas = Scripts.AntennasLoaders.LoadHFSSYagis.run(Ntheta=Ntheta, Nphi=Nphi, elevation=-90)
+        antennas.update(Scripts.AntennasLoaders.LoadHFSSValidationArrays.run(Ntheta=Ntheta, Nphi=Nphi))
+        antennas.update(Scripts.AntennasLoaders.LoadValidationArrays.run(Ntheta=Ntheta, Nphi=Nphi))
         
-        # import Scripts.LoadValidationArrays
-        # antennas.update(Scripts.LoadValidationArrays.run(app=app, Ntheta=21, Nphi=21))
+        print('Evaluation time of 1Y-4El: ' + str(antennas['array_validation_1Y4EL'].evaluation_time))
+        print('Evaluation time of 2Y-4El: ' + str(antennas['array_validation_2Y4EL'].evaluation_time))
+        print('Evaluation time of 3Y-4El: ' + str(antennas['array_validation_3Y4EL'].evaluation_time))
+        print('Evaluation time of 4Y-4El: ' + str(antennas['array_validation_4Y4EL'].evaluation_time))
+        print('Evaluation time of 5Y-4El: ' + str(antennas['array_validation_5Y4EL'].evaluation_time))
         
-        # print('Evaluation time of 1Y-4El: ' + str(antennas['array_validation_1Y_4El'].evaluation_time))
-        # print('Evaluation time of 2Y-4El: ' + str(antennas['array_validation_2Y_4El'].evaluation_time))
-        # print('Evaluation time of 3Y-4El: ' + str(antennas['array_validation_3Y_4El'].evaluation_time))
-        # print('Evaluation time of 4Y-4El: ' + str(antennas['array_validation_4Y_4El'].evaluation_time))
-        # print('Evaluation time of 5Y-4El: ' + str(antennas['array_validation_5Y_4El'].evaluation_time))
+        for antenna in antennas.values():
+            app.add_antenna(antenna)
         
         # # import Scripts.LoadDefaultAnalyses
         # # Scripts.LoadDefaultAnalyses.run(app)

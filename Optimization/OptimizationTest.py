@@ -11,6 +11,8 @@ import os
 path = os.path.split(os.path.split(__file__)[0])[0]
 sys.path.insert(0, path)
 
+import time
+
 import numpy as np
 import pickle
 
@@ -48,7 +50,8 @@ optimizing_array = Array.Array(
     phi=phi,
     antennas=[antennas['hfss_yagi2EL'].copy()]
     )
-optimizing_array.antennas[0].set_orientation(elevation=-45,azimuth=45)
+# optimizing_array.antennas[0].set_orientation(elevation=-45,azimuth=45)
+optimizing_array.evaluate()
 
 # weight_mask = np.ones(target_distribution_theta.shape)
 # weight_mask[target_distribution_theta.mesh_theta>np.pi/2] = 0.5
@@ -68,10 +71,30 @@ optim = Optimization.Optimization(x_map=x_map,
                      analyses=[Fref, Fcross],
                      disp=False)
 
+import Scripts.ExportResults
+
+export_directory = '/media/vitinho/DADOS/TCC/Python/ExportedResults/OptimizationTest'
+optimizing_array.name = 'Initial Array'
+target_antenna.name = 'Target Antenna'
+Scripts.ExportResults.run([
+    target_antenna,
+    optimizing_array,
+    ], export_directory)
+
 try:
+    start_time = time.time()
     optim.run()
+    elapsed_time = time.time()-start_time
 finally:
+    print('elapsed time was ' + str(elapsed_time))
+    print('number of evaluations was ' + str(optim.number_of_evaluations))
     print('\tcost: {}'.format(optim.cost))
+
+export_directory = '/media/vitinho/DADOS/TCC/Python/ExportedResults/OptimizationTest'
+optimizing_array.name = 'Result Array'
+Scripts.ExportResults.run([
+    optimizing_array,
+    ], export_directory)
 
 import App
 import ResultFrame

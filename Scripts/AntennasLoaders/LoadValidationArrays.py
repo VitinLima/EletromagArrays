@@ -5,6 +5,11 @@ Created on Wed May 24 22:46:38 2023
 @author: 160047412
 """
 
+import sys
+import os
+path = os.path.split(os.path.split(__file__)[0])[0]
+sys.path.insert(0, path)
+
 import numpy as np
 
 import AntennasLoaders.LoadHFSSYagis
