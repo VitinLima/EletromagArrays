@@ -22,11 +22,13 @@ antennas_dir = '/media/vitinho/DADOS/TCC/Antennas'
 
 file_name = 'antenna-Yagi-4Elements.csv'
 file_path = os.path.join(antennas_dir, file_name)
-hfss_yagi4EL = Antenna.load_from_file(file_path,
-                                 name='Yagi 4EL',
-                                 theta=theta,
-                                 phi=phi,
-                                 load_mesh_from_file=False)
+
+hfss_yagi4EL = Antenna.load_from_file(
+    file_path,
+    name='Yagi 4EL',
+    theta=theta,
+    phi=phi,
+    load_mesh_from_file=False)
 hfss_yagi4EL.set_position(x=0.0,y=0.0,z=0)
 
 array_5Y4EL = Array.Array(name='Array 2Y4El',

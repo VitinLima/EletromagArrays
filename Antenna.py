@@ -29,6 +29,7 @@ class Antenna:
     def __init__(self, constants=None, name='new antenna',
                  current_mag=1, current_phase=0,
                  theta=np.linspace(0, 180, 21), phi=np.linspace(-180, 180, 21),
+                 local_theta_deg=np.linspace(0, 180, 91), local_phi_deg=np.linspace(-180, 180, 91),
                  roll=0, elevation=0, azimuth=0,
                  x=0, y=0, z=0,
                  evaluate_as='ideal dipole'):
@@ -38,6 +39,8 @@ class Antenna:
         self.current_phase=current_phase
         self.theta=theta
         self.phi=phi
+        self.local_theta_deg = local_theta_deg
+        self.local_phi_deg = local_phi_deg
         self.roll=roll
         self.elevation=elevation
         self.azimuth=azimuth
@@ -66,8 +69,12 @@ class Antenna:
         
         self.evaluation_time = 0
         
-        self.local_theta = np.radians(np.linspace(0,180,self.local_mesh_N_theta))
-        self.local_phi = np.radians(np.linspace(-180,180,self.local_mesh_N_phi))
+        # self.local_theta_deg = np.linspace(0,180,self.local_mesh_N_theta)
+        # self.local_phi_deg = np.linspace(-180,180,self.local_mesh_N_phi)
+        self.local_theta = np.radians(self.local_theta_deg)
+        self.local_phi = np.radians(self.local_phi_deg)
+        self.local_theta_rad = self.local_theta
+        self.local_phi_rad = self.local_phi
         
         self.evaluation_arguments = dict()
         self.evaluation_arguments['dipole length'] = .5
@@ -171,24 +178,26 @@ class Antenna:
         
         self.local_mesh_phi,self.local_mesh_theta = np.meshgrid(self.local_phi,self.local_theta)
         self.local_shape = (self.local_theta.size, self.local_phi.size)
+        self.local_mesh_theta_rad = self.local_mesh_theta
+        self.local_mesh_phi_rad = self.local_mesh_phi
         
-        ct = np.cos(self.local_mesh_theta)
-        st = np.sin(self.local_mesh_theta)
-        Rtheta = np.zeros((self.local_theta.size, self.local_phi.size, 3, 3))
-        Rtheta[:,:,0,0] = ct
-        Rtheta[:,:,0,2] = st
-        Rtheta[:,:,2,0] = -st
-        Rtheta[:,:,1,1] = 1
-        Rtheta[:,:,2,2] = ct
+        # ct = np.cos(self.local_mesh_theta)
+        # st = np.sin(self.local_mesh_theta)
+        # Rtheta = np.zeros((self.local_theta.size, self.local_phi.size, 3, 3))
+        # Rtheta[:,:,0,0] = ct
+        # Rtheta[:,:,0,2] = st
+        # Rtheta[:,:,2,0] = -st
+        # Rtheta[:,:,1,1] = 1
+        # Rtheta[:,:,2,2] = ct
         
-        cp = np.cos(self.local_mesh_phi)
-        sp = np.sin(self.local_mesh_phi)
-        Rphi = np.zeros((self.local_theta.size, self.local_phi.size, 3, 3))
-        Rphi[:,:,0,0] = cp
-        Rphi[:,:,0,1] = -sp
-        Rphi[:,:,1,0] = sp
-        Rphi[:,:,1,1] = cp
-        Rphi[:,:,2,2] = 1
+        # cp = np.cos(self.local_mesh_phi)
+        # sp = np.sin(self.local_mesh_phi)
+        # Rphi = np.zeros((self.local_theta.size, self.local_phi.size, 3, 3))
+        # Rphi[:,:,0,0] = cp
+        # Rphi[:,:,0,1] = -sp
+        # Rphi[:,:,1,0] = sp
+        # Rphi[:,:,1,1] = cp
+        # Rphi[:,:,2,2] = 1
         
         self.local_hat_k = np.zeros((self.local_theta.size, self.local_phi.size, 3))
         self.local_hat_theta = np.zeros_like(self.local_hat_k)
@@ -197,12 +206,19 @@ class Antenna:
         self.local_hat_theta[:,:,0] = 1
         self.local_hat_phi[:,:,1] = 1
         
-        self.local_hat_k = MyMath.rotate(self.local_hat_k, Rtheta)
-        self.local_hat_theta = MyMath.rotate(self.local_hat_theta, Rtheta)
+        Rtheta = MyMath.roty(self.local_mesh_theta_rad)
+        Rphi = MyMath.rotz(self.local_mesh_phi_rad)
+        R = np.matmul(Rphi, Rtheta)
+        self.local_hat_k = np.matmul(R, self.local_hat_k[:,:,:,np.newaxis]).squeeze()
+        self.local_hat_theta = np.matmul(R, self.local_hat_theta[:,:,:,np.newaxis]).squeeze()
+        self.local_hat_phi = np.matmul(R, self.local_hat_phi[:,:,:,np.newaxis]).squeeze()
         
-        self.local_hat_k = MyMath.rotate(self.local_hat_k, Rphi)
-        self.local_hat_theta = MyMath.rotate(self.local_hat_theta, Rphi)
-        self.local_hat_phi = MyMath.rotate(self.local_hat_phi, Rphi)
+        # self.local_hat_k = MyMath.rotate(self.local_hat_k, Rtheta)
+        # self.local_hat_theta = MyMath.rotate(self.local_hat_theta, Rtheta)
+        
+        # self.local_hat_k = MyMath.rotate(self.local_hat_k, Rphi)
+        # self.local_hat_theta = MyMath.rotate(self.local_hat_theta, Rphi)
+        # self.local_hat_phi = MyMath.rotate(self.local_hat_phi, Rphi)
         
     def evaluate_R(self):
         self.R_flag = False
@@ -767,13 +783,15 @@ if __name__=='__main__':
         with open(filename, mode='wb') as f:
             pickle.dump(self, f)
 
-def load_from_file(file_path, name, theta, phi, load_mesh_from_file):
-    antenna = Antenna(name=name,
-                      theta=theta.copy(),
-                      phi=phi.copy())
+def load_from_file(file_path, load_mesh_from_file=False, **kw):
+    antenna = Antenna(**kw
+        # name=name,
+        # theta=theta.copy(),
+        # phi=phi.copy()
+        )
     antenna.set_evaluation_method('load file')
     antenna.evaluation_arguments['file path'] = file_path
-    antenna.evaluation_arguments['load mesh from file'] = load_mesh_from_file
+    # antenna.evaluation_arguments['load mesh from file'] = load_mesh_from_file
     antenna.evaluate()
     
     return antenna

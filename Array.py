@@ -103,7 +103,7 @@ class Array(Antenna.Antenna):
             current = antenna.current_mag*(np.cos(phase) + 1j*np.sin(phase))
             
             p0 = Antenna.constants['lam']*np.array([x,y,z]).reshape((1,1,3))
-            Af = current*np.exp(1j*Antenna.constants['k']*(self.local_hat_k*p0).sum(2))
+            Af = current*np.exp((1j)*Antenna.constants['k']*(self.local_hat_k*p0).sum(2))
             
             self.local_Ftheta = self.local_Ftheta + Af*Ftheta
             self.local_Fphi = self.local_Fphi + Af*Fphi
