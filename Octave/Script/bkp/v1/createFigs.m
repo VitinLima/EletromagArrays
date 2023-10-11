@@ -1,0 +1,56 @@
+close all;
+clc;
+
+##  figure;
+##  hold on;
+##  line(theta_global, phi_global, 'linestyle', 'none', 'marker', '.', 'color', 'b');
+##  line([0 0],[-pi pi], 'color', 'r');
+##  line([pi pi],[-pi pi], 'color', 'r');
+##  line([0 pi],[pi pi], 'color', 'r');
+##  line([0 pi],[-pi -pi], 'color', 'r');
+##  xlabel("Theta");
+##  ylabel("Phi");
+  
+##  figure;
+##  hold on;
+##  TRI = delaunay(theta_global, phi_global);
+##  trisurf(TRI, theta_global, phi_global, E_global(1,:), 'linestyle', 'none');
+##  line([0 0],[-pi pi], 'color', 'r');
+##  line([pi pi],[-pi pi], 'color', 'r');
+##  line([0 pi],[pi pi], 'color', 'r');
+##  line([0 pi],[-pi -pi], 'color', 'r');
+##  xlabel("Theta");
+##  ylabel("Phi");
+##  zlabel("Ex");
+  
+  figure;
+  hold on;
+##  CN = 64;
+##  cm = jet(CN);
+##  Ex = E_global(1,:)';
+##  Ec = sum(Ex(TETR),2)/4;
+##  minEc = min(Ec);
+##  maxEc = max(Ec);
+##  C = round((CN-1)*(Ec-minEc)/(maxEc-minEc)) + 1;
+  TETR = delaunay(x_global, y_global, z_global);
+  tetramesh(TETR, P_global');
+  xlabel('x');
+  ylabel('y');
+  zlabel('z');
+
+  getFaces;
+  figure;
+  hold on;
+  CN = 64;
+  cm = jet(CN);
+  E = sqrt(sum(E_global.*E_global, 1));
+##  Ec = sum(Ex(TRI),2)/3;
+  minE = min(E);
+  maxE = max(E);
+  C = round((CN-1)*(E-minE)/(maxE-minE)) + 1;
+##  TETR = delaunay(x_global, y_global, z_global);
+  PE = P_global.*E;
+  trisurf(TRI, P_global(1,:), P_global(2,:), P_global(3,:), C, 'facecolor', 'interp');
+  xlabel('x');
+  ylabel('y');
+  zlabel('z');

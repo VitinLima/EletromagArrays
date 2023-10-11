@@ -1,0 +1,3 @@
+Implement Euler-Rodrigues formula for 3d rotation;
+Implement own algorithm for interpolating electric fields with pagewise linear interpolation
+Create script in ansys ironPython / PyAEDT for exporting and importing simulation data for processing in Octave/Matlab and analyse data in Ansys with its tools.
