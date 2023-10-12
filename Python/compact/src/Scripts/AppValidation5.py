@@ -4,15 +4,13 @@ Created on Wed May 24 22:17:11 2023
 
 @author: 160047412
 """
-
 import sys
 import os
 path = os.path.split(__file__)[0]
 path = os.path.split(path)[0]
 sys.path.insert(0, path)
-path = os.path.split(path)[0]
-home_directory = os.path.split(path)[0]
-antennas_dir=os.path.join(home_directory, 'Antennas')
+import Path_To_Antennas
+antennas_dir = Path_To_Antennas.antennas_dir
 
 import numpy as np
 
