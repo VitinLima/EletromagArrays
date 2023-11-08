@@ -19,8 +19,7 @@ function array = gridArrayConstructor(baseAntenna,
 
   for i = 1:Nx
     for j = 1:Ny
-      antennas((i-1)*Ny + j).position = [ ...
-        (x0+(i-1)*dx)*lambda,(y0+(j-1)*dy)*lambda,0]';
+      antennas((i-1)*Ny + j).position = [(x0+(i-1)*dx)*lambda,(y0+(j-1)*dy)*lambda,0]';
     end
   end
 

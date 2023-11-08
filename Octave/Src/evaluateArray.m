@@ -9,8 +9,7 @@ function array = evaluateArray(array)
   ct = cosd(array.THETA);
   st = sind(array.THETA);
   v = repmat(cat(1,st.*cp,st.*sp,ct),1,1,array.N_antennas);
-  pd = repmat(cat(1,-sp,cp,zeros(1,array.N_samples)),1,1,...
-    array.N_antennas);
+  pd = repmat(cat(1,-sp,cp,zeros(1,array.N_samples)),1,1,array.N_antennas);
   td = repmat(cat(1,ct.*cp,ct.*sp,-st),1,1,array.N_antennas);
 
   ct = cosd(cat(3,array.antennas.alpha));
@@ -42,8 +41,7 @@ function array = evaluateArray(array)
   st = sind(ti);
   cp = cosd(pi);
   sp = sind(pi);
-  pdi = pagemtimes(R_t, cat(1,-sp,cp,zeros(1,array.N_samples,...
-    array.N_antennas)));
+  pdi = pagemtimes(R_t, cat(1,-sp,cp,zeros(1,array.N_samples,array.N_antennas)));
   tdi = pagemtimes(R_t, cat(1,ct.*cp,ct.*sp,-st));
   Epi = zeros(1,array.N_samples,array.N_antennas);
   Eti = zeros(1,array.N_samples,array.N_antennas);
@@ -66,11 +64,13 @@ function array = evaluateArray(array)
   api = cat(3, array.antennas.phaseI);
 
   Af = exp(-1j*k*sum(v.*av,1)).*ai.*exp(1j*deg2rad(api));
+##  disp(["k: ", num2str(k)]);
   Epi .*= Af;
   Eti .*= Af;
 
   array.Ephi = sum(dot(pd,Epi.*pdi+Eti.*tdi,1),3);
   array.Etheta = sum(dot(td,Epi.*pdi+Eti.*tdi,1),3);
+##  array.Etheta = sum(Epi.*dot(td,pdi,1) + Eti.*dot(td,tdi,1),3);
 
   #Normalize electric fields
   a = array.Ephi.*conj(array.Ephi);
