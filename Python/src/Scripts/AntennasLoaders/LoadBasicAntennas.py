@@ -5,11 +5,18 @@ Created on Sat Apr  8 21:19:07 2023
 @author: 160047412
 """
 
+import sys
+import os
+import ImportAntennasPath
+home_directory = ImportAntennasPath.home_directory
+antennas_dir = ImportAntennasPath.antennas_dir
+
 import numpy as np
 
 import Antenna
 
 def run(elevation=0, azimuth=0, roll=0, Ntheta=91, Nphi=91):
+    
     theta=np.linspace(0, 180, Ntheta)
     phi=np.linspace(-180, 180, Nphi)
     
@@ -27,10 +34,6 @@ def run(elevation=0, azimuth=0, roll=0, Ntheta=91, Nphi=91):
     
     antennas =  dict(ideal_dipole=ideal_dipole,
                      ideal_loop_dipole=ideal_loop_dipole,)
-    
-    # if app is not None:
-    #     for antenna in antennas.values():
-    #         app.add_antenna(antenna)
     
     return antennas
 

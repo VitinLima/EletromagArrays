@@ -8,30 +8,36 @@ Created on Wed Jul 12 17:07:12 2023
 
 import sys
 import os
-path = os.path.split(os.path.split(__file__)[0])[0]
-sys.path.insert(0, path)
+import header
 
-python_path = os.path.split(path)[0]
-results_dir = os.path.join(python_path, 'ExportedResults')
-home_dir = os.path.split(python_path)[0]
-antennas_dir = os.path.join(home_dir, 'Antennas')
+python_path = header.python_path
+results_dir = os.path.join(header.results_dir, 'Validation')
+home_dir = header.home_dir
+antennas_dir = header.antennas_dir
 
 import matplotlib.pyplot as plt
 plt.close('all')
 
 import Scripts.AntennasLoaders.LoadHFSSYagis
-antennas = Scripts.AntennasLoaders.LoadHFSSYagis.run(Ntheta=91, Nphi=91, antennas_dir=antennas_dir)
+antennas = Scripts.AntennasLoaders.LoadHFSSYagis.run(Ntheta=91, Nphi=91,)
+                                                     # antennas_dir=antennas_dir)
 
 import Scripts.AntennasLoaders.LoadHFSSValidationArrays
-antennas.update(Scripts.AntennasLoaders.LoadHFSSValidationArrays.run(Ntheta=91, Nphi=91, antennas_dir=antennas_dir))
+antennas.update(Scripts.AntennasLoaders.LoadHFSSValidationArrays.run(
+    Ntheta=91, Nphi=91,))# antennas_dir=antennas_dir))
 
 import Scripts.AntennasLoaders.LoadValidationArrays
-antennas.update(Scripts.AntennasLoaders.LoadValidationArrays.run(Ntheta=91, Nphi=91))
+antennas.update(Scripts.AntennasLoaders.LoadValidationArrays.run(
+    Ntheta=91, Nphi=91))
 
 import Scripts.ExportResults
 import Scripts.ExportCompare
 
+if not os.path.exists(results_dir):
+    os.mkdir(results_dir)
 cur_export_dir = os.path.join(results_dir, 'Fields1Y4EL')
+if not os.path.exists(cur_export_dir):
+    os.mkdir(cur_export_dir)
 Scripts.ExportResults.run([
     antennas['array_validation_1Y4EL'],
     antennas['HFSS_1Y4EL'],
@@ -82,36 +88,37 @@ Scripts.ExportResults.run(
     fields=['Fphi','Ftheta','Fref','Fcross', 'F', 'Fref-Fcross'],
     title='ReferenceSystemComparison')
 
-# import Result
-# import ResultFigure
-# results_dir = 'C:\\Users\\160047412\\OneDrive - unb.br\\LoraAEB\\Python\\ExportedResults'
+import Result
+import ResultFigure
 
-# figure = ResultFigure.ResultFigure()
-# antenna = antennas['HFSS_2Y4EL']
-# field = 'Ftheta-Fphi'
-# plot = '2d Polar Patch'
-# Result.Result(tab=figure,
-#               title='',
-#               antenna=antenna,
-#               field=field,
-#               plot=plot,
-#               in_dB=True)
-# figure.draw()
-# fname = os.path.join(results_dir, antenna.name + ' RefSysCompare-Ftheta-Fphi' + '.png')
-# figure.figure.savefig(fname)
+figure = ResultFigure.ResultFigure()
+antenna = antennas['HFSS_3Y4EL']
+field = 'Ftheta-Fphi'
+plot = '2d Polar Patch'
+Result.Result(tab=figure,
+              title='',
+              antenna=antenna,
+              field=field,
+              plot=plot,
+              in_dB=True)
+figure.draw()
+fname = os.path.join(results_dir, antenna.name +
+                     ' RefSysCompare-Ftheta-Fphi' + '.png')
+figure.figure.savefig(fname)
 
-# figure = ResultFigure.ResultFigure()
-# antenna = antennas['HFSS_2Y4EL']
-# field = 'Fref-Fcross'
-# plot = '2d Polar Patch'
-# Result.Result(tab=figure,
-#               title='',
-#               antenna=antenna,
-#               field=field,
-#               plot=plot,
-#               in_dB=True)
-# figure.draw()
-# fname = os.path.join(results_dir, antenna.name + ' RefSysCompare-Fref-Fcross' + '.png')
-# figure.figure.savefig(fname)
+figure = ResultFigure.ResultFigure()
+antenna = antennas['HFSS_3Y4EL']
+field = 'Fref-Fcross'
+plot = '2d Polar Patch'
+Result.Result(tab=figure,
+              title='',
+              antenna=antenna,
+              field=field,
+              plot=plot,
+              in_dB=True)
+figure.draw()
+fname = os.path.join(results_dir, antenna.name +
+                     ' RefSysCompare-Fref-Fcross' + '.png')
+figure.figure.savefig(fname)
 
-# plt.close('all')
+plt.close('all')

@@ -8,23 +8,26 @@ Created on Thu Mar  9 20:24:44 2023
 import pyparsing as pp
 import numpy as np
 
+
 class EvalTuple:
     "Class to evaluate a parsed tuple"
-    
+
     def __init__(self, tokens):
         self.values = [i for j in tokens for i in j]
-    
+
     def eval(self):
         return tuple([arg.eval() for arg in self.values])
 
+
 class EvalList:
     "Class to evaluate a parsed list"
-    
+
     def __init__(self, tokens):
         self.values = [i for j in tokens for i in j]
-    
+
     def eval(self):
         return [arg.eval() for arg in self.values]
+
 
 class EvalFunction:
     "Class to evaluate a parsed function"
@@ -69,7 +72,7 @@ class EvalFunction:
         'sum': np.sum,
         'cumsum': np.cumsum,
         'prod': np.prod,
-        'U': lambda a,t: 1*(np.array(t)>=np.array(a))
+        'U': lambda a, t: 1*(np.array(t) >= np.array(a))
     }
 
     def __init__(self, tokens):
@@ -82,6 +85,7 @@ class EvalFunction:
             return EvalFunction.funs_[self.name](*args)
         else:
             raise Exception('Unknown function ' + str(self.name))
+
 
 class EvalConstant:
     "Class to evaluate a parsed constant or variable"
@@ -104,6 +108,7 @@ class EvalConstant:
                     return float(self.value)
                 except ValueError:
                     return complex(self.value)
+
 
 class EvalSignOp:
     "Class to evaluate expressions with a leading + or - sign"
@@ -180,7 +185,7 @@ class EvalFactOp:
     def eval(self):
         N = self.value[0].eval()
         prod = 1
-        for i in range(1,N+1):
+        for i in range(1, N+1):
             prod *= i
         return prod
 
@@ -214,42 +219,52 @@ class EvalComparisonOp:
             val1 = fn(val1, val2)
         return val1
 
+
 class NumpyExpressionParser:
     integer = pp.Word(pp.nums)
-    real = pp.Combine(pp.Optional(integer) + '.' + integer) | pp.Combine(integer + '.' + pp.Optional(integer)) | integer
+    real = pp.Combine(pp.Optional(
+        integer) + '.' + integer) | pp.Combine(integer + '.' +
+                                               pp.Optional(integer)) | integer
     imaginary = pp.Combine(real + 'j')
     cmplx = pp.Combine(real + '+' + imaginary)
     variable = pp.Word(pp.alphanums + '_')
     number = cmplx | imaginary | real | integer
-    
+
     signop = pp.oneOf("+ -")
     multop = pp.oneOf("* /")
     plusop = pp.oneOf("+ -")
     expop = pp.Literal("**")
-    
+
     operand = pp.Forward()
     expression = pp.Forward()
     expression_list = pp.delimitedList(pp.Group(expression))
     lpar = pp.Literal('(').suppress()
     rpar = pp.Literal(')').suppress()
-    fn_call = pp.Word(pp.alphanums + '_') + lpar + pp.Optional(pp.Group(expression_list)) + rpar
-    
+    fn_call = pp.Word(pp.alphanums + '_') + lpar + \
+        pp.Optional(pp.Group(expression_list)) + rpar
+
     lpar = pp.Literal('(').suppress()
     rpar = pp.Literal(')').suppress()
-    tpl = lpar + pp.Group(expression) + pp.Literal(',').suppress() + pp.Optional(pp.delimitedList(pp.Group(expression),allow_trailing_delim=True)) + rpar
-    
+    tpl = lpar + pp.Group(expression) + pp.Literal(',').suppress() + \
+        pp.Optional(
+        pp.delimitedList(pp.Group(expression), allow_trailing_delim=True)) + \
+        rpar
+
     lpar = pp.Literal('[').suppress()
     rpar = pp.Literal(']').suppress()
-    lst = lpar + pp.Group(expression) + pp.Literal(',').suppress() + pp.Optional(pp.delimitedList(pp.Group(expression),allow_trailing_delim=True)) + rpar
-    
+    lst = lpar + pp.Group(expression) + pp.Literal(',').suppress() + \
+        pp.Optional(
+        pp.delimitedList(pp.Group(expression), allow_trailing_delim=True)) + \
+        rpar
+
     operand <<= number | fn_call | lst | tpl | variable
-    
+
     number.setParseAction(EvalConstant)
     variable.setParseAction(EvalConstant)
     tpl.setParseAction(EvalTuple)
     lst.setParseAction(EvalList)
     fn_call.setParseAction(EvalFunction)
-    
+
     comparisonop = pp.oneOf("< <= > >= != = <> LT GT LE GE EQ NE")
     arith_expr = pp.infixNotation(
         operand,
@@ -262,38 +277,44 @@ class NumpyExpressionParser:
             (comparisonop, 2, pp.opAssoc.LEFT, EvalComparisonOp),
         ],
     )
-    
+
     comp_expr = pp.infixNotation(
         operand,
         [
         ],
     )
-    
+
     expression <<= arith_expr
-    
+
     @staticmethod
     def eval(expression, variables={}, functions={}):
         for var_name in variables.keys():
             EvalConstant.vars_[var_name] = variables[var_name]
-        
+
         for fun_name in functions.keys():
             EvalFunction.funs_[fun_name] = functions[fun_name]
-        
-        return NumpyExpressionParser.expression.parseString(expression)[0].eval()
 
-if __name__=='__main__':
-    theta = np.radians(np.linspace(0,180,21))
-    phi = np.radians(np.linspace(-180,180,21))
-    mesh_phi,mesh_theta = np.meshgrid(phi,theta)
+        return NumpyExpressionParser.expression.parseString(expression)[0].\
+            eval()
+
+
+if __name__ == '__main__':
+    theta = np.radians(np.linspace(0, 180, 21))
+    phi = np.radians(np.linspace(-180, 180, 21))
+    mesh_phi, mesh_theta = np.meshgrid(phi, theta)
     v = {
         'theta': mesh_theta,
         'phi': mesh_phi,
         'pi': np.pi
     }
     f = {
-        
+
     }
-    # s = '(cos(pi/2*cos(theta)) - cos(pi/2))/(sin(theta)+(sin(theta)==0))'
-    # print(s + ' = ' + str(NumpyExpressionParser.eval(expression=s,variables=v,functions=f)))
+    s = '(cos(pi/2*cos(theta)) - cos(pi/2))/(sin(theta)+(sin(theta)==0))'
+    print(s + ' = ' + str(NumpyExpressionParser.eval(expression=s,
+                                                     variables=v,
+                                                     functions=f)))
     s = '[1,1.0,.1,1.]'
-    print(s + ' = ' + str(NumpyExpressionParser.eval(expression=s,variables=v,functions=f)))
+    print(s + ' = ' + str(NumpyExpressionParser.eval(expression=s,
+                                                     variables=v,
+                                                     functions=f)))

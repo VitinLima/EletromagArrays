@@ -35,45 +35,40 @@ function saveIdealDipole(dipole_length, radiatedPower)
 
   rE *= 1000;
 
-  st = sin(THETA);
-  ct = cos(THETA);
-  sp = sin(PHI);
-  cp = cos(PHI);
-
 ##  min_rE = min(min(rE));
   max_rE = max(max(rE));
   R = rE/max_rE;
-  XX = R.*st.*cp;
-  YY = R.*st.*sp;
-  ZZ = R.*ct;
-
-  disp([num2str(dipole_length), " Prad: ",
-  num2str(sum(sum(rE.*st))/prod(size(THETA)))])
+  XX = R.*sin(THETA).*cos(PHI);
+  YY = R.*sin(THETA).*sin(PHI);
+  ZZ = R.*cos(THETA);
 
   figure('visible', 'on');
   hold on;
 
-  h = surf(XX, YY, ZZ, rE, 'linestyle', 'none', 'facecolor', 'interp');
+  h = surf(XX, YY, ZZ, R, 'linestyle', 'none', 'facecolor', 'interp');
   rotate(h, [0 1 0], 90);
   rotate(h, [0 0 1], 90);
 
   xlabel('x');
   ylabel('y');
   zlabel('z');
-  xticks([]);
-  yticks([]);
-  zticks([]);
+  xticklabels([]);
+  yticklabels([]);
+  zticklabels([]);
   grid on;
-  colormap jet;
-  cb = colorbar;
-  caxis([0 10000]);
-  ylabel(cb, '[mV]');
   axis equal;
+  view(-45, 30);
+  set(gca, 'fontsize', fontsize);
 ##  set(gca, 'cameraposition', [1 1 0.4]);
 ##  set(gca, 'cameratarget', [0 0 0]);
 ##  set(gca, 'cameraupvector', [0 0 1]);
-  view(-45, 30);
-  set(gca, 'fontsize', fontsize);
+  colormap jet;
+  cb = colorbar;
+  caxis([0 1]);
+##  ylabel(cb, '[mV]');+
+  axis equal;
+  set(cb, 'fontsize', fontsize);
+  hold off;
 
   dipole_length = strjoin(strsplit(num2str(dipole_length), '.'), '-');
 ##  in = input("Enter 1 to continue\nEnter 2 to cancel\n");

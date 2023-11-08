@@ -40,13 +40,14 @@ array.antennas(4).beta = 135;
 array.antennas(4).alpha = -45;
 array.Name = 'Octave 4';
 
-field_name = 'magE db'
+field_name = 'magEtheta'
 plot_type = 'inverted sphere'
 
 tic;
 array = evaluateArray(array);
 toc;
-disp(['Time elapsed for calculating ',array.Name,': ',num2str(toc),' seconds']);
+disp(['Time elapsed for calculating ',array.Name,': ',num2str(toc),
+  ' seconds']);
 displayResults(array, field_name, plot_type);
 
 antv = readAntenna("4Y-4EL.csv");

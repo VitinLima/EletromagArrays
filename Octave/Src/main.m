@@ -10,7 +10,8 @@ global k = 2*pi/lambda; % <= Número de onda [rad/m]
 
 tic;
 base_antenna = readAntenna('antenna-Dipole.csv');
-disp(['Time elapsed for reading base antenna: ',num2str(toc),' seconds']);
+disp(['Time elapsed for reading base antenna: ',num2str(toc),
+  ' seconds']);
 
 tic;
 
@@ -33,8 +34,10 @@ arr = rotateElectricFields(arr, 0, 70);
 tic;
 displayResults(tg_ant);
 displayResults(ant);
-disp(['Time elapsed for displaying results: ',num2str(toc),' seconds']);
+disp(['Time elapsed for displaying results: ',num2str(toc),
+  ' seconds']);
 
 tic;
 arr = optimization(arr, tg_ant);
-disp(['Time elapsed for achieving target antenna: ',num2str(toc),' seconds']);
+disp(['Time elapsed for achieving target antenna: ',num2str(toc),
+  ' seconds']);

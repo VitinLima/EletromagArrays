@@ -1,4 +1,6 @@
 function save3DDirectivity(n, v, tgt)
+  fontsize = 20.0;
+
   Phi = v(:,1);
   Theta = v(:,2);
   Ddb = v(:,3);
@@ -24,16 +26,21 @@ function save3DDirectivity(n, v, tgt)
   xlabel('x');
   ylabel('y');
   zlabel('z');
-  xticks([]);
-  yticks([]);
-  zticks([]);
+  xticklabels([]);
+  yticklabels([]);
+  zticklabels([]);
+##  xticks([]);
+##  yticks([]);
+##  zticks([]);
   cb = colorbar;
+  caxis([-5 10]);
   ylabel(cb, '[dB]');
 
   grid on;
-  title(['Diretividade máxima = ', num2str(max(max(Ddb)),2), ' dB']);
+##  title(['Diretividade máxima = ', num2str(max(max(Ddb)),2), ' dB']);
   axis equal;
-  view(-45,25);
+  view(10,25);
+  set(gca, 'fontsize', fontsize);
 
   hold off;
   print(["Resultados",filesep,tgt,"-3DDirectivity.png"]);

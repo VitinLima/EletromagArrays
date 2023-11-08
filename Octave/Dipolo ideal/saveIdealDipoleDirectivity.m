@@ -6,6 +6,8 @@ function saveIdealDipoleDirectivity()
   lambda = c/f;
   k = w/c;
 
+  fontsize = 20.0;
+
   %P_in = 1;
   %C_in = 2.435;
   %I_0 = sqrt(P_in/C_in/eta*8*pi);
@@ -62,10 +64,10 @@ function saveIdealDipoleDirectivity()
   grid on;
   colormap jet;
   cb = colorbar;
-  caxis([-30 0]);
   ylabel(cb, '[dB]');
   axis equal;
-  view(-45,25);
+  view(-45,30);
+  set(gca, 'fontsize', fontsize);
   title(['Diretividade máxima = ', num2str(max(max(D_dB)),2), ' dB']);
 
   dipole_length = strjoin(strsplit(num2str(dipole_length), '.'), '-');

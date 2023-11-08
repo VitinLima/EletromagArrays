@@ -5,13 +5,19 @@ Created on Sat May 13 16:32:59 2023
 @author: 160047412
 """
 
+import sys
+import os
+path = os.path.split(__file__)[0]
+path = os.path.split(path)[0]
+sys.path.insert(0, path)
+path = os.path.split(path)[0]
+home_directory = os.path.split(path)[0]
+antennas_dir=os.path.join(home_directory, 'Antennas')
+
 import matplotlib.pyplot as plt
 
 import ResultFigure
 import Result
-
-import os
-# import shutil
 
 def run(antennas,
         export_directory,
@@ -32,8 +38,7 @@ def run(antennas,
     
     if not os.path.exists(export_directory):
         os.mkdir(export_directory)
-    # results_dir = 'C:\\Users\\160047412\\OneDrive - unb.br\\LoraAEB\\Python\\ExportedResults'
-    # results_dir = '/media/vitinho/DADOS/TCC/Python/ExportedResults'
+    
     for antenna in antennas:
         for field in fields:
             for color in colors:
@@ -50,6 +55,19 @@ def run(antennas,
                               Ntheta=Ntheta,
                               Nphi=Nphi,)
                 figure.draw()
-                fname = os.path.join(export_directory, ' '.join([s for s in [antenna.name,field,color,plot,title] if s != '']) + '.png')
+                cur_export_directory = os.path.join(export_directory,
+                                                    color)
+                if not os.path.exists(cur_export_directory):
+                    os.mkdir(cur_export_directory)
+                fname = os.path.join(
+                    cur_export_directory, ' '.join(
+                        [s for s \
+                         in [antenna.name,
+                             field,
+                             # color,
+                             plot,
+                              title
+                              ] \
+                             if s != '']) + '.png')
                 figure.figure.savefig(fname)
                 plt.close('all')

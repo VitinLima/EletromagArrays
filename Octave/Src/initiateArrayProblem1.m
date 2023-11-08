@@ -37,7 +37,8 @@ plot_type = 'inverted sphere'
 tic;
 array = evaluateArray(array);
 toc;
-disp(['Time elapsed for calculating ',array.Name,': ',num2str(toc),' seconds']);
+disp(['Time elapsed for calculating ',array.Name,': ',num2str(toc),
+  ' seconds']);
 displayResults(array, field_name, plot_type);
 
 antv = readAntenna("1Y-4EL.csv");

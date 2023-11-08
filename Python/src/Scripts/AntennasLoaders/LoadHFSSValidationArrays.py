@@ -5,13 +5,17 @@ Created on Sat May 13 20:04:57 2023
 @author: 160047412
 """
 
+import sys
 import os
+import ImportAntennasPath
+home_directory = ImportAntennasPath.home_directory
+antennas_dir = ImportAntennasPath.antennas_dir
+
 import numpy as np
 
 import Antenna
 
-def run(Ntheta=91, Nphi=91, antennas_dir='/media/vitinho/DADOS/TCC/Antennas'):
-    # antennas_dir = 'C:\\Users\\160047412\\OneDrive - unb.br\\LoraAEB\\Antennas'
+def run(Ntheta=91, Nphi=91):
     
     theta=np.linspace(0, 90, Ntheta)
     phi=np.linspace(-180, 180, Nphi)

@@ -24,17 +24,18 @@ function antenna = readAntenna(filename)
     'N_theta', []);
 
   if !isempty(filename)
-    ##antennas_dir = 'C:\Users\160047412\OneDrive - unb.br\LoraAEB\Antennas';
-##    antennas_dir = '/media/vitinho/DADOS/TCC/Antennas';
-    antennas_dir = '/mnt/325947A912590BDE/TCC/Antennas';
+    antennas_dir = strjoin([strsplit(pwd,filesep)(1:end-4), ...
+    'Antennas'],filesep);
     FID = fopen([antennas_dir, filesep, filename]);
     antenna.header = fgetl(FID);
     C = textscan(FID, "%q,%f,%f,%f %f,%f %f");
   ##  antenna.variations = C(1);
     antenna.PHI = rad2deg(cell2mat(C(2)))';
     antenna.THETA = rad2deg(cell2mat(C(3)))';
-    antenna.PHI_samplings = antenna.PHI(antenna.THETA==antenna.THETA(1));
-    antenna.THETA_samplings = antenna.THETA(antenna.PHI==antenna.PHI(1));
+    antenna.PHI_samplings = antenna.PHI(...
+      antenna.THETA==antenna.THETA(1));
+    antenna.THETA_samplings = antenna.THETA(...
+      antenna.PHI==antenna.PHI(1));
 
     antenna.N_theta = length(antenna.THETA_samplings);
     antenna.N_phi = length(antenna.PHI_samplings);
@@ -58,10 +59,10 @@ function antenna = readAntenna(filename)
     antenna.theta_hat(2,:) = ct.*sp;
     antenna.theta_hat(3,:) = -st;
 
-##    antenna.Ephi = transpose(cell2mat(C(4)) .* exp(1j*cell2mat(C(5))));
-##    antenna.Etheta = transpose(cell2mat(C(6)) .* exp(1j*cell2mat(C(7))));
-    antenna.Ephi = transpose(cell2mat(C(4)) .* exp(-1j*cell2mat(C(5))));
-    antenna.Etheta = transpose(cell2mat(C(6)) .* exp(-1j*cell2mat(C(7))));
+    antenna.Ephi = transpose(cell2mat(C(4)) .* ...
+    exp(-1j*cell2mat(C(5))));
+    antenna.Etheta = transpose(cell2mat(C(6)) .* ...
+    exp(-1j*cell2mat(C(7))));
 
     #Normalize electric fields
     a = antenna.Ephi.*conj(antenna.Ephi);

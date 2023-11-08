@@ -7,18 +7,20 @@ Created on Wed May 24 13:23:36 2023
 
 import sys
 import os
-import numpy as np
-
-path = os.path.split(os.path.split(__file__)[0])[0]
+path = os.path.split(__file__)[0]
+path = os.path.split(path)[0]
 sys.path.insert(0, path)
+path = os.path.split(path)[0]
+home_directory = os.path.split(path)[0]
+antennas_dir=os.path.join(home_directory, 'Antennas')
+
+import numpy as np
 
 import Antenna
 import Array
 
 theta=np.linspace(0, 180, 91)
 phi=np.linspace(-180, 180, 91)
-# antennas_dir = 'C:\\Users\\160047412\\OneDrive - unb.br\\LoraAEB\\Antennas'
-antennas_dir = '/media/vitinho/DADOS/TCC/Antennas'
 
 file_name = 'antenna-Yagi-4Elements.csv'
 file_path = os.path.join(antennas_dir, file_name)
@@ -28,10 +30,11 @@ hfss_yagi4EL = Antenna.load_from_file(file_path,
                                  phi=phi,
                                  load_mesh_from_file=False)
 
-array_1Y4EL = Array.Array(name='Array 1Y4El',
-                          theta=theta.copy(),
-                          phi=phi.copy(),
-                          antennas=[hfss_yagi4EL])
+array_1Y4EL = Array.Array(
+    name='Array 1Y4El',
+    theta=theta.copy(),
+    phi=phi.copy(),
+    antennas=[hfss_yagi4EL])
 array_1Y4EL.evaluate()
 
 file_name = '1Y-4EL.csv'
@@ -57,7 +60,10 @@ field='Ftheta'
 color='Color by phase'
 in_dB = False
 
-tab_1 = ResultFrame.ResultFrame(master=app.tabs,name='Phase',iy=2)
+tab_1 = ResultFrame.ResultFrame(
+    master=app.tabs,
+    name='Phase',
+    columns=2)
 result_1 = Result.Result(tab=tab_1,
                          name='Array',
                          title='Array',
@@ -66,7 +72,7 @@ result_1 = Result.Result(tab=tab_1,
                          field=field,
                          color=color,
                          in_dB=in_dB,
-                         preferred_position=1)
+                         position=1)
 result_2 = Result.Result(tab=tab_1,
                          name='HFSS',
                          title='HFSS',
@@ -75,12 +81,15 @@ result_2 = Result.Result(tab=tab_1,
                          field=field,
                          color=color,
                          in_dB=in_dB,
-                         preferred_position=2)
+                         position=2)
 app.add_tab(tab_1)
 
 field='F'
 color='Color by magnitude'
-tab_2 = ResultFrame.ResultFrame(master=app.tabs,name='Mag',iy=2)
+tab_2 = ResultFrame.ResultFrame(
+    master=app.tabs,
+    name='Magnitude',
+    columns=2)
 result_1 = Result.Result(tab=tab_2,
                          name='Array',
                          title='Array',
@@ -89,7 +98,7 @@ result_1 = Result.Result(tab=tab_2,
                          field=field,
                          color=color,
                          in_dB=in_dB,
-                         preferred_position=1)
+                         position=1)
 result_2 = Result.Result(tab=tab_2,
                          name='HFSS',
                          title='HFSS',
@@ -98,16 +107,7 @@ result_2 = Result.Result(tab=tab_2,
                          field=field,
                          color=color,
                          in_dB=in_dB,
-                         preferred_position=2)
+                         position=2)
 app.add_tab(tab_2)
-
-# def custom_plot(result):
-#     pass
-
-# tab_2 = ResultFrame.ResultFrame(master=app.tabs,name='Difference',iy=2)
-# result_3 = Result.Result(tab=tab_2,
-#                          name='Difference',
-#                          plot='custom')
-
 
 app.mainloop()
