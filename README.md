@@ -13,7 +13,8 @@ destes arranjos foram exportados e importados como uma antena no código, e ent�
 individualmente. Assim, estes arranjos foram utilizados para validar o código desenvolvido.
 
   Os códigos calculam os campos elétricos na região de campos distantes, ou seja, assumindo que o ponto de observação do campo elétrico está a uma
-distância $r$ muito maior das antenas que o comprimento de onda $\lambda$ das ondas eletromagnéticas emitidas.
+distância $r$ muito maior das antenas que o comprimento de onda $\lambda_0$ das ondas eletromagnéticas emitidas. Assume-se que as ondas eletromagnéticas
+se propagam no espaço livre.
 
 For creating, simulating and optimizing antenna arrays from Antennas developed in HFSS
 
