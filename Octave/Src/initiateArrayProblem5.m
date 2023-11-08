@@ -43,7 +43,7 @@ array.antennas(5).beta = 14;
 array.antennas(5).alpha = 72;
 array.Name = 'Octave 5';
 
-field_name = 'angEtheta'
+field_name = 'magE db'
 plot_type = 'inverted sphere'
 
 tic;

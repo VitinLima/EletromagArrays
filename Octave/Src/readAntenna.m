@@ -25,7 +25,8 @@ function antenna = readAntenna(filename)
 
   if !isempty(filename)
     ##antennas_dir = 'C:\Users\160047412\OneDrive - unb.br\LoraAEB\Antennas';
-    antennas_dir = '/media/vitinho/DADOS/TCC/Antennas';
+##    antennas_dir = '/media/vitinho/DADOS/TCC/Antennas';
+    antennas_dir = '/mnt/325947A912590BDE/TCC/Antennas';
     FID = fopen([antennas_dir, filesep, filename]);
     antenna.header = fgetl(FID);
     C = textscan(FID, "%q,%f,%f,%f %f,%f %f");

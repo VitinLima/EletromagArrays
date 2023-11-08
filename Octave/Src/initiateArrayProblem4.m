@@ -35,12 +35,12 @@ array.antennas(2).alpha = 0;
 array.antennas(3).position = lambda*[0 -1.5 0]';
 array.antennas(3).beta = -45;
 array.antennas(3).alpha = -45;
-array.antennas(4).position = lambda*[-1.5 1 0]';
-array.antennas(4).beta = -45;
-array.antennas(4).alpha = 135;
+array.antennas(4).position = lambda*[0.34, -3.14, 1.423]';
+array.antennas(4).beta = 135;
+array.antennas(4).alpha = -45;
 array.Name = 'Octave 4';
 
-field_name = 'magEtheta'
+field_name = 'magE db'
 plot_type = 'inverted sphere'
 
 tic;
@@ -49,6 +49,6 @@ toc;
 disp(['Time elapsed for calculating ',array.Name,': ',num2str(toc),' seconds']);
 displayResults(array, field_name, plot_type);
 
-antv = readAntenna("4Y-4El.csv");
+antv = readAntenna("4Y-4EL.csv");
 antv.Name = 'HFSS 4';
 displayResults(antv, field_name, plot_type);

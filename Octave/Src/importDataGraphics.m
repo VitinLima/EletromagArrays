@@ -52,6 +52,7 @@ function invertedSphere_rE(varargin)
   p.addParameter("showIm", false);
   p.addParameter("cmap", "jet");
   p.addParameter("title", "");
+  p.addParameter("color_range", "auto");
 
   p.parse(varargin{:});
   args_in = p.Results;
@@ -110,10 +111,11 @@ function invertedSphere_rE(varargin)
     R = R_ticks(end);
     thick_handles(end+1) = text(R*cosd(Theta_ticks(i)), R*sind(Theta_ticks(i)), [num2str(Theta_ticks(i)),"º"], 'verticalalignment', v_alignment, 'horizontalalignment', h_alignment);
   end
-  set(grid_handles, 'color', [.5 .5 .5], 'linewidth', 1);
+  set(grid_handles, 'color', [1 1 1], 'linewidth', 1);
 
   colormap(args_in.cmap);
   colorbar;
+  caxis(args_in.color_range);
 ##  title("inverted sphere rE");
   set(gcf, 'filename', [args_in.title,' inverted sphere rE'])
   grid off;

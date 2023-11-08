@@ -37,7 +37,7 @@ array.antennas(3).beta = -45;
 array.antennas(3).alpha = -45;
 array.Name = 'Octave 3';
 
-field_name = 'magEtheta'
+field_name = 'magE db'
 plot_type = 'inverted sphere'
 
 tic;

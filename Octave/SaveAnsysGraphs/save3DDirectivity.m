@@ -23,15 +23,18 @@ function save3DDirectivity(n, v, tgt)
   surf(X, Y, Z, Ddb, 'linestyle', 'none', 'facecolor', 'interp');
   xlabel('x');
   ylabel('y');
-##  zlabel('z');
+  zlabel('z');
+  xticks([]);
+  yticks([]);
+  zticks([]);
   cb = colorbar;
   ylabel(cb, '[dB]');
-  
+
   grid on;
   title(['Diretividade máxima = ', num2str(max(max(Ddb)),2), ' dB']);
   axis equal;
   view(-45,25);
-  
+
   hold off;
   print(["Resultados",filesep,tgt,"-3DDirectivity.png"]);
 end

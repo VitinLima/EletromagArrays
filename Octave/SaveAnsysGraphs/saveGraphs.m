@@ -1,12 +1,12 @@
 function saveGraphs(tgt, phi_id, theta_id, D_dB_id)
   [n,v] = readFile(["Resultados",filesep,tgt,".csv"]);
-  
+
   save3DDirectivity(n,v,tgt);
-  
+
   phi = v(:,phi_id);
   theta = v(:,theta_id);
   D_dB = v(:,D_dB_id);
-  
+
   if !isempty(n) && !isempty(v)
     figure('visible', 'off');
     hold on;
@@ -18,7 +18,7 @@ function saveGraphs(tgt, phi_id, theta_id, D_dB_id)
     hold off;
     print(["Resultados",filesep,tgt,"-DirectivityTheta.png"]);
   end
-  
+
   if !isempty(n) && !isempty(v)
     figure('visible', 'off');
     hold on;
@@ -30,7 +30,7 @@ function saveGraphs(tgt, phi_id, theta_id, D_dB_id)
     hold off;
     print(["Resultados",filesep,tgt,"-DirectivityPhi.png"]);
   end
-  
+
   [n,v] = readFile(["Resultados",filesep,"SweepPlot",tgt,".csv"]);
   if !isempty(n) && !isempty(v)
     figure('visible', 'off');
@@ -38,7 +38,7 @@ function saveGraphs(tgt, phi_id, theta_id, D_dB_id)
     grid on;
     line(v(:,1), v(:,2), 'linewidth', 2, 'color', 'red');
     xlabel(n(1));
-    ylabel("S_{1,1} [dB]");
+    ylabel("S_{11} [dB]");
     hold off;
     print(["Resultados",filesep,tgt,"-SweepPlot.png"]);
   end
