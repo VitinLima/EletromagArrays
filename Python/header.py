@@ -13,5 +13,23 @@ results_dir = os.path.join(src_dir, 'Images')
 sys.path.insert(0, src_dir)
 
 path = os.path.split(src_dir)[0]
-path = os.path.split(path)[0]
 antennas_dir = os.path.join(path, 'Antennas')
+
+if not os.path.exists(results_dir):
+    os.mkdir(results_dir)
+
+validation_results_dir = os.path.join(results_dir, "Validation")
+if not os.path.exists(validation_results_dir):
+    os.mkdir(validation_results_dir)
+
+optimization_results_dir = os.path.join(results_dir, "Optimization")
+if not os.path.exists(optimization_results_dir):
+    os.mkdir(optimization_results_dir)
+
+# comparisons_results_dir = os.path.join(results_dir, "Comparisons")
+# if not os.path.exists(comparisons_results_dir):
+#     os.mkdir(comparisons_results_dir)
+
+# reference_system_comparison_results_dir = os.path.join(results_dir, "ReferenceSystemComparison")
+# if not os.path.exists(comparisons_results_dir):
+#     os.mkdir(reference_system_comparison_results_dir)

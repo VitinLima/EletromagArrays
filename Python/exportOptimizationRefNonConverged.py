@@ -9,29 +9,27 @@ Created on Fri Aug 11 23:48:20 2023
 import sys
 import os
 import header
-export_path = os.path.split(header.src_path)[0]
 
 import Result
 import ResultFrame
 import App
-import Scripts.ExportResults
+import ExportResults
 import Array
 import numpy as np
-import Scripts.AntennasLoaders.LoadHFSSYagis
+import LoadHFSSYagis
 import matplotlib.pyplot as plt
 
 plt.close('all')
 
 print("Loading antennas")
 
-antennas = Scripts.AntennasLoaders.LoadHFSSYagis.run(
+antennas = LoadHFSSYagis.run(
     Ntheta=91, Nphi=91)
 
 print("Loading export results directory")
 
 export_directory = os.path.join(
-    export_path,
-    'ExportedResults',
+    header.results_dir,
     'Optimization',
     'LinearOptimizationNonConverged')
 if not os.path.exists(export_directory):
@@ -103,7 +101,7 @@ initial_array.evaluate()
 print("Exporting initial state")
 
 
-Scripts.ExportResults.run([
+ExportResults.run([
     initial_array,
 ], export_directory)
 
@@ -166,7 +164,7 @@ final_array.name = 'Result Array'
 
 print("Exporting results")
 
-Scripts.ExportResults.run([
+ExportResults.run([
     target_antenna,
     final_array,
 ], export_directory)
@@ -193,6 +191,12 @@ ExportTable.export_table(
         "Resultados da otimização de polarização linear " +
             "com custo final de {:.2f}".format(optim.cost)
         ])
+
+initial_cost = cost_function(initial_array, target_antenna)
+final_cost = cost_function(final_array, target_antenna)
+print("Custo inicial: " + str(round(initial_cost*100)/100))
+print("Custo final: " + str(round(final_cost*100)/100))
+print("Melhora de " + str(round((initial_cost-final_cost)/initial_cost*10000)/100) + "%")
 
 if __name__=='__main__':
     

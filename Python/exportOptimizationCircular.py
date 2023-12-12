@@ -9,22 +9,20 @@ Created on Wed Aug  2 21:15:26 2023
 import sys
 import os
 import header
-export_path = os.path.split(header.src_path)[0]
 
 import matplotlib.pyplot as plt
 plt.close('all')
 
 print("Loading antennas")
 
-import Scripts.AntennasLoaders.LoadHFSSYagis
-antennas = Scripts.AntennasLoaders.LoadHFSSYagis.run(Ntheta=91,
+import LoadHFSSYagis
+antennas = LoadHFSSYagis.run(Ntheta=91,
                                                      Nphi=91)
 
 print("Loading export results directory")
 
 export_directory = os.path.join(
-    export_path,
-    'ExportedResults',
+    header.results_dir,
     'Optimization',
     'CircularOptimization')
 if not os.path.exists(export_directory):
@@ -78,9 +76,9 @@ initial_array.evaluate()
 
 print("Exporting initial state")
 
-import Scripts.ExportResults
+import ExportResults
 
-Scripts.ExportResults.run([
+ExportResults.run([
     initial_array,
     ], export_directory,
     fields=[
@@ -137,7 +135,7 @@ final_array.name = 'Result Array'
 
 print("Exporting results")
 
-Scripts.ExportResults.run([
+ExportResults.run([
     target_antenna,
     final_array,
     ], export_directory,
@@ -169,6 +167,12 @@ ExportTable.export_table(
         "Resultado da otimização de polarização circular " +
             "com custo final de {:.2f}".format(optim.cost)
         ])
+
+initial_cost = cost_function(initial_array, target_antenna)
+final_cost = cost_function(final_array, target_antenna)
+print("Custo inicial: " + str(round(initial_cost*100)/100))
+print("Custo final: " + str(round(final_cost*100)/100))
+print("Melhora de " + str(round((initial_cost-final_cost)/initial_cost*10000)/100) + "%")
 
 if __name__=='__main__':
     

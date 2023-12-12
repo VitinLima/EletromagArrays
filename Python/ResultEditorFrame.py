@@ -44,8 +44,8 @@ class ResultEditorFrame(ttk.Frame):
         self.projection_variable = tk.StringVar(value=self.result.projection)
         self.plot_variable = tk.StringVar(value=self.result.plot)
         self.field_variable = tk.StringVar(value=self.result.field)
-        self.color_variable = tk.StringVar(value=self.result.color)
-        self.color_textvariable = tk.StringVar(value=self.result.color)
+        self.color_by_variable = tk.StringVar(value=self.result.color_by)
+        self.color_by_textvariable = tk.StringVar(value=self.result.color_by)
         self.row_variable = tk.IntVar(value=self.result.row)
         self.column_variable = tk.IntVar(value=self.result.column)
 
@@ -63,14 +63,14 @@ class ResultEditorFrame(ttk.Frame):
             value=self.result.reference_2d.z_axis.z)
 
         self.in_dB_variable = tk.IntVar(value=self.result.in_dB)
-        self.dynamic_scaling_dB_variable = tk.DoubleVar(
-            value=self.result.dynamic_scaling_dB)
+        self.colorbar_dB_min_variable = tk.DoubleVar(
+            value=self.result.colorbar_dB_min)
         self.visible_flag_variable = tk.IntVar(value=self.result.visible_flag)
         self.axis_flag_variable = tk.IntVar(value=self.result.axis_flag)
         self.grid_flag_variable = tk.IntVar(value=self.result.grid_flag)
         self.add_colorbar_variable = tk.IntVar(value=self.result.add_colorbar)
-        self.colorbar_min_variable = tk.DoubleVar(value=self.result.colorbar_min)
-        self.colorbar_max_variable = tk.DoubleVar(value=self.result.colorbar_max)
+        self.colorbar_min_variable = tk.DoubleVar(value=self.result.color_bybar_min)
+        self.colorbar_max_variable = tk.DoubleVar(value=self.result.color_bybar_max)
 
         # self.edit_axes_frame_label = tk.StringVar()
 
@@ -184,8 +184,8 @@ class ResultEditorFrame(ttk.Frame):
         fr_left_top_left.pack(side='left', fill='both', padx=3, pady=3)
 
         ttk.Checkbutton(
-            master=fr_left_top_left, textvariable=self.color_textvariable,
-            variable=self.color_variable,
+            master=fr_left_top_left, textvariable=self.color_by_textvariable,
+            variable=self.color_by_variable,
             command=self._on_color_cbt_change,
             onvalue='Color by magnitude',
             offvalue='Color by phase').pack(side='left', fill='both')
@@ -199,7 +199,7 @@ class ResultEditorFrame(ttk.Frame):
 
         ttk.Entry(
             master=fr_left_top_left_left,
-            textvariable=self.dynamic_scaling_dB_variable).pack(
+            textvariable=self.colorbar_dB_min_variable).pack(
             side='left', fill='both')
 
         self.plot_frame = ttk.LabelFrame(master=self, text='Plot options')
@@ -271,11 +271,11 @@ class ResultEditorFrame(ttk.Frame):
         self.result.set_antenna(self.app.antennas[self.antenna_cbbx.current()])
         self.result.set_field(self.field_variable.get())
         self.result.set_plot(self.plot_variable.get())
-        self.result.set_color(self.color_textvariable.get())
+        self.result.set_color(self.color_by_textvariable.get())
         self.result.set_position(row=self.row_variable.get(), column=self.column_variable.get())
 
-        x_axis = Geometry.Geometry.Axis()
-        z_axis = Geometry.Geometry.Axis()
+        x_axis = Geometry.Axis()
+        z_axis = Geometry.Axis()
 
         x_axis.x = self.X_X_variable.get()
         x_axis.y = self.X_Y_variable.get()
@@ -285,18 +285,18 @@ class ResultEditorFrame(ttk.Frame):
         z_axis.y = self.Z_Y_variable.get()
         z_axis.z = self.Z_Z_variable.get()
 
-        self.result.reference_2d = Geometry.Geometry.ReferenceSystem(
+        self.result.reference_2d = Geometry.ReferenceSystem(
             x_axis=x_axis, z_axis=z_axis)
 
         # print(self.visible_flag_variable.get())
         self.result.in_dB = self.in_dB_variable.get() == 1
-        self.result.dynamic_scaling_dB = self.dynamic_scaling_dB_variable.get()
+        self.result.colorbar_dB_min = self.colorbar_dB_min_variable.get()
         self.result.visible_flag = self.visible_flag_variable.get() == 1
         self.result.axis_flag = self.axis_flag_variable.get() == 1
         self.result.grid_flag = self.grid_flag_variable.get() == 1
         self.result.add_colorbar = self.add_colorbar_variable.get() == 1
-        self.result.colorbar_min = self.colorbar_min_variable.get()
-        self.result.colorbar_max = self.colorbar_max_variable.get()
+        self.result.color_bybar_min = self.colorbar_min_variable.get()
+        self.result.color_bybar_max = self.colorbar_max_variable.get()
 
         self.result.ok = False
         self.result.update()
@@ -306,7 +306,7 @@ class ResultEditorFrame(ttk.Frame):
         self.on_done()
 
     def _on_color_cbt_change(self):
-        self.color_textvariable.set(self.color_variable.get())
+        self.color_by_textvariable.set(self.color_by_variable.get())
 
     def _on_plot_change(self, event=None):
         if self.current_plot_frame is not None:

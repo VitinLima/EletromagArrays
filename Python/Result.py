@@ -29,6 +29,7 @@ class Result():
                        '2d Polar Graph',
                        '2d Polar Contour',
                        '2d Polar Patch',
+                       '2d Polar Patch Type 2',
                        '3d Polar Surface',
                        '3d Polar']
     available_fields = ['F',
@@ -65,14 +66,20 @@ class Result():
                  ylabel=None,
                  zlabel=None,
                  add_colorbar=True,
-                 colorbar_min=-30,
-                 colorbar_max=0,
+                 colorbar_min=0,
+                 colorbar_max=1,
+                 colorbar_dB_min=-30,
+                 colorbar_dB_max=0,
                  position=None,
                  column=1, row=1,
                  compare_fields=None,
                  view_camera=None,
                  Ntheta=21,
+                 theta_i=0,
+                 theta_f=90,
                  Nphi=21,
+                 phi_i=-180,
+                 phi_f=180,
                  Nx=21,
                  Ny=21,
                  reference_2d=Geometry.ReferenceSystem()):
@@ -83,9 +90,12 @@ class Result():
         self.analysis = analysis
         self.plot = plot
         self.field = field
-        self.color = color
+        self.color_by = color
         self.in_dB = in_dB
-        self.dynamic_scaling_dB = dynamic_scaling_dB
+        self.colorbar_min = colorbar_min
+        self.colorbar_max = colorbar_max
+        self.colorbar_dB_min = colorbar_dB_min
+        self.colorbar_dB_max = colorbar_dB_max
         self.visible_flag = visible_flag
         self.axis_flag = axis_flag
         self.grid_flag = grid_flag
@@ -112,7 +122,11 @@ class Result():
         self.view_camera = view_camera
         self.reference_2d = reference_2d
         self.Ntheta = Ntheta
+        self.theta_i = theta_i
+        self.theta_f = theta_f
         self.Nphi = Nphi
+        self.phi_i = phi_i
+        self.phi_f = phi_f
         self.Nx = Nx
         self.Ny = Ny
         self.labelsize = 20
@@ -309,8 +323,8 @@ class Result():
                 self.axes.set_yticklabels([str(i) + degree_sign for i in self.rticks])
                 
             # self.axes.set_yticklabels(['$22.5^\circ$', '$45^\circ$', '$66.5^\circ$', '$90^\circ$'])
-            self.axes.set_ylabel(r"$\theta$")
-            self.axes.set_xlabel(r"$\phi$")
+            # self.axes.set_ylabel(r"$\theta$")
+            # self.axes.set_xlabel(r"$\phi$")
 
     def reference_polarization(self, theta, phi):
         sp = np.sin(phi)
@@ -404,9 +418,9 @@ class Result():
         #               self.dynamic_scaling_dB] = self.dynamic_scaling_dB
         #     self.colorbar_label = '[dB]'
 
-        # if self.color == 'Color by magnitude':
+        # if self.color_by == 'Color by magnitude':
         #     color = field_mag
-        # elif self.color == 'Color by phase':
+        # elif self.color_by == 'Color by phase':
         #     color = field_phase
         #     self.colorbar_label = '[deg]'
         # color = self.analysis.evaluate_color(antenna)
@@ -437,7 +451,7 @@ class Result():
         self.ok = False
 
     def set_color(self, color):
-        self.color = color
+        self.color_by = color
         self.ok = False
 
     def set_plot(self, plot):
@@ -654,47 +668,89 @@ class Result():
             linewidth=0, antialiased=False)
 
     def draw_polar_surface(self):
-        field, color = self.get_field()
+        field_magnitude, field_phase = self.get_field()
 
-        interp_theta_deg = np.linspace(0, 90, self.Ntheta)
-        interp_phi_deg = np.linspace(-180, 180, self.Nphi)
+        interp_theta_deg = np.linspace(self.theta_i, self.theta_f, self.Ntheta)
+        interp_phi_deg = np.linspace(self.phi_i, self.phi_f, self.Nphi)
 
         interp_mesh_phi_deg, interp_mesh_theta_deg = np.meshgrid(
             interp_phi_deg, interp_theta_deg)
+        
+        if self.color_by=='Color by magnitude':
+            color = self.antenna.interpolate_at(
+                interp_mesh_theta_deg,
+                interp_mesh_phi_deg,
+                field_magnitude)
+            cmap = 'jet'
+            self.vmin = self.colorbar_dB_min
+            self.vmax = self.colorbar_dB_max
+            plt.colorbar(self.graphical_objects, ax=self.axes,
+                          label=self.colorbar_label, extend='both',
+                          pad=0.1)
+        elif self.color_by=='Color by phase':
+            color = self.antenna.interpolate_at(
+                interp_mesh_theta_deg,
+                interp_mesh_phi_deg,
+                field_phase)
+            if self.in_degrees:
+                color = 180*color/np.pi
+            cmap = 'twilight'
+            # self.graphical_objects = self.axes.pcolormesh(
+            #     np.radians(interp_mesh_phi_deg),
+            #     90*np.sin(np.radians(interp_mesh_theta_deg)),
+            #     180*field_phase/np.pi,
+            #     # norm=norm,
+            #     shading='gouraud',
+            #     cmap=cmap,
+            #     vmin=-180,
+            #     vmax=180)
+            self.vmin=-180
+            self.vmax=180
+        # self.graphical_objects = self.axes.pcolormesh(
+        #     np.radians(interp_mesh_phi_deg),
+        #     90*np.sin(np.radians(interp_mesh_theta_deg)),
+        #     color,
+        #     rstride=1, cstride=1, facecolors=rgb,
+        #     linewidth=0, antialiased=False,
+        #     # norm=norm,
+        #     shading='gouraud',
+        #     cmap=cmap,
+        #     vmin=self.vmin,
+        #     vmax=self.vmax)
 
-        field = self.antenna.interpolate_at(
-            interp_mesh_theta_deg, interp_mesh_phi_deg, field)
+        # field = self.antenna.interpolate_at(
+        #     interp_mesh_theta_deg, interp_mesh_phi_deg, field)
 
-        jet = plt.colormaps['jet']
-        color_max = color.max()
-        color_min = color.min()
-        if color_max != color_min:
-            C = (color-color_min)/(color_max-color_min)
-            rgb = jet(C)
-        else:
-            rgb = list(color.shape)
-            rgb.append(4)
-            rgb = np.zeros(tuple(rgb))
-            rgb[:, :, 3] = 1
-            rgb[:, :, 2] = 1
+        # jet = plt.colormaps['jet']
+        # color_max = color.max()
+        # color_min = color.min()
+        # if color_max != color_min:
+        #     C = (color-color_min)/(color_max-color_min)
+        #     rgb = jet(C)
+        # else:
+        #     rgb = list(color.shape)
+        #     rgb.append(4)
+        #     rgb = np.zeros(tuple(rgb))
+        #     rgb[:, :, 3] = 1
+        #     rgb[:, :, 2] = 1
 
         self.graphical_objects = self.axes.plot_surface(
             np.radians(interp_mesh_phi_deg),
             np.sin(np.radians(interp_mesh_theta_deg)),
-            field,
-            rstride=1, cstride=1, facecolors=rgb,
+            color,
+            rstride=1, cstride=1,#, facecolors=rgb,
             linewidth=0, antialiased=False)
 
     def draw_polar_patch(self):
         field_magnitude, field_phase = self.get_field()
 
-        interp_theta_deg = np.linspace(0, 90, self.Ntheta)
-        interp_phi_deg = np.linspace(-180, 180, self.Nphi)
+        interp_theta_deg = np.linspace(self.theta_i, self.theta_f, self.Ntheta)
+        interp_phi_deg = np.linspace(self.phi_i, self.phi_f, self.Nphi)
 
         interp_mesh_phi_deg, interp_mesh_theta_deg = np.meshgrid(
             interp_phi_deg, interp_theta_deg)
 
-        if self.color == 'Color by magnitude':
+        if self.color_by == 'Color by magnitude':
             field_magnitude = self.antenna.interpolate_at(
                 interp_mesh_theta_deg,
                 interp_mesh_phi_deg,
@@ -713,7 +769,7 @@ class Result():
                           label=self.colorbar_label, extend='both',
                           pad=0.1)
                            # boundaries=[self.colorbar_min, self.colorbar_max])
-        elif self.color == 'Color by phase':
+        elif self.color_by == 'Color by phase':
             field_phase = self.antenna.interpolate_at(
                 interp_mesh_theta_deg,
                 interp_mesh_phi_deg,
@@ -753,7 +809,7 @@ class Result():
     def draw_polar_patch_type_2(self):
         field_magnitude, field_phase = self.get_field()
 
-        if self.color == 'Color by magnitude':
+        if self.color_by == 'Color by magnitude':
             cmap = 'jet'
             self.graphical_objects = self.axes.pcolormesh(
                 self.antenna.mesh_phi,
@@ -763,7 +819,7 @@ class Result():
                 cmap=cmap,
                 vmin=self.colorbar_min,
                 vmax=self.colorbar_max)
-        elif self.color == 'Color by phase':
+        elif self.color_by == 'Color by phase':
             cmap = 'twilight'
             self.graphical_objects = self.axes.pcolormesh(
                 self.antenna.mesh_phi,

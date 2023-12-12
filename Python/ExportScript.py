@@ -7,44 +7,36 @@ Created on Sat May 13 18:37:32 2023
 
 import sys
 import os
-path = os.path.split(__file__)[0]
-path = os.path.split(path)[0]
-sys.path.insert(0, path)
-path = os.path.split(path)[0]
-home_directory = os.path.split(path)[0]
-antennas_dir=os.path.join(home_directory, 'Antennas')
+import header
 
 import matplotlib.pyplot as plt
 plt.close('all')
 
-import Scripts.AntennasLoaders.LoadHFSSYagis
-antennas = Scripts.AntennasLoaders.LoadHFSSYagis.run(
+import LoadHFSSYagis
+antennas = LoadHFSSYagis.run(
     Ntheta=91, Nphi=91)
 
-import Scripts.AntennasLoaders.LoadHFSSValidationArrays
-antennas.update(Scripts.AntennasLoaders.LoadHFSSValidationArrays.run(
+import LoadHFSSValidationArrays
+antennas.update(LoadHFSSValidationArrays.run(
     Ntheta=91, Nphi=91))
 
-import Scripts.AntennasLoaders.LoadValidationArrays
-antennas.update(Scripts.AntennasLoaders.LoadValidationArrays.run(
+import LoadValidationArrays
+antennas.update(LoadValidationArrays.run(
     Ntheta=91, Nphi=91))
 
-import Scripts.ExportResults
-import Scripts.ExportCompare
-import OptimizationScripts.ExportTable
+import ExportResults
+import ExportCompare
+import ExportTable
 
-export_directory = os.path.join(home_directory,
-                                'Python',
-                                'ExportedResults',
-                                'Validation',
+export_directory = os.path.join(header.validation_results_dir,
                                 'Fields1Y4EL')
 if not os.path.exists(export_directory):
     os.mkdir(export_directory)
-Scripts.ExportResults.run([
+ExportResults.run([
     antennas['array_validation_1Y4EL'],
     antennas['HFSS_1Y4EL'],
     ], export_directory)
-OptimizationScripts.ExportTable.export_table(
+ExportTable.export_table(
     export_directory,
     arrays=[
         antennas['array_validation_1Y4EL']
@@ -52,18 +44,15 @@ OptimizationScripts.ExportTable.export_table(
     captions = [
         "Arranjo de validação do código com 1 antena"
         ])
-export_directory = os.path.join(home_directory,
-                                'Python',
-                                'ExportedResults',
-                                'Validation',
+export_directory = os.path.join(header.validation_results_dir,
                                 'Fields2Y4EL')
 if not os.path.exists(export_directory):
     os.mkdir(export_directory)
-Scripts.ExportResults.run([
+ExportResults.run([
     antennas['array_validation_2Y4EL'],
     antennas['HFSS_2Y4EL'],
     ], export_directory)
-OptimizationScripts.ExportTable.export_table(
+ExportTable.export_table(
     export_directory,
     arrays=[
         antennas['array_validation_2Y4EL']
@@ -72,18 +61,15 @@ OptimizationScripts.ExportTable.export_table(
         "Arranjo de validação do código com 2 antenas"
         ])
 
-export_directory = os.path.join(home_directory,
-                                'Python',
-                                'ExportedResults',
-                                'Validation',
+export_directory = os.path.join(header.validation_results_dir,
                                 'Fields3Y4EL')
 if not os.path.exists(export_directory):
     os.mkdir(export_directory)
-Scripts.ExportResults.run([
+ExportResults.run([
     antennas['array_validation_3Y4EL'],
     antennas['HFSS_3Y4EL'],
     ],export_directory)
-OptimizationScripts.ExportTable.export_table(
+ExportTable.export_table(
     export_directory,
     arrays=[
         antennas['array_validation_3Y4EL']
@@ -92,18 +78,15 @@ OptimizationScripts.ExportTable.export_table(
         "Arranjo de validação do código com 3 antenas"
         ])
 
-export_directory = os.path.join(home_directory,
-                                'Python',
-                                'ExportedResults',
-                                'Validation',
+export_directory = os.path.join(header.validation_results_dir,
                                 'Fields4Y4EL')
 if not os.path.exists(export_directory):
     os.mkdir(export_directory)
-Scripts.ExportResults.run([
+ExportResults.run([
     antennas['array_validation_4Y4EL'],
     antennas['HFSS_4Y4EL'],
     ], export_directory)
-OptimizationScripts.ExportTable.export_table(
+ExportTable.export_table(
     export_directory,
     arrays=[
         antennas['array_validation_4Y4EL']
@@ -112,19 +95,16 @@ OptimizationScripts.ExportTable.export_table(
         "Arranjo de validação do código com 4 antenas"
         ])
 
-export_directory = os.path.join(home_directory,
-                                'Python',
-                                'ExportedResults',
-                                'Validation',
+export_directory = os.path.join(header.validation_results_dir,
                                 'Fields5Y4EL')
 if not os.path.exists(export_directory):
     os.mkdir(export_directory)
-Scripts.ExportResults.run(
+ExportResults.run(
     [
     antennas['array_validation_5Y4EL'],
     antennas['HFSS_5Y4EL']
     ], export_directory)
-OptimizationScripts.ExportTable.export_table(
+ExportTable.export_table(
     export_directory,
     arrays=[
         antennas['array_validation_5Y4EL']
@@ -133,13 +113,11 @@ OptimizationScripts.ExportTable.export_table(
         "Arranjo de validação do código com 5 antenas"
         ])
 
-export_directory = os.path.join(home_directory,
-                                'Python',
-                                'ExportedResults',
+export_directory = os.path.join(header.results_dir,
                                 'Comparisons')
 if not os.path.exists(export_directory):
     os.mkdir(export_directory)
-Scripts.ExportCompare.run([
+ExportCompare.run([
                             (antennas['array_validation_1Y4EL'],
                             antennas['HFSS_1Y4EL']),
                             (antennas['array_validation_2Y4EL'],
@@ -152,13 +130,11 @@ Scripts.ExportCompare.run([
                             antennas['HFSS_5Y4EL'])
                             ], export_directory)
 
-export_directory = os.path.join(home_directory,
-                                'Python',
-                                'ExportedResults',
+export_directory = os.path.join(header.results_dir,
                                 'ReferenceSystemComparison')
 if not os.path.exists(export_directory):
     os.mkdir(export_directory)
-Scripts.ExportResults.run(
+ExportResults.run(
     [
         antennas['array_validation_3Y4EL'],
         antennas['HFSS_3Y4EL'],

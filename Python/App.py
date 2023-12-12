@@ -300,7 +300,7 @@ if __name__ == "__main__":
         
         tab = ResultFrame.ResultFrame(
             master=app.tabs,
-            name=field,
+            name='Tab',
             columns=2,rows=1)
         Result.Result(tab=tab,
                       title='Yagi 2 Elements',
@@ -326,99 +326,99 @@ if __name__ == "__main__":
                       Nphi=Nphi)
         app.add_tab(tab)
         
-        plot = '2d Polar Patch'
+        # plot = '2d Polar Patch'
         
-        field = 'F'
-        tab = ResultFrame.ResultFrame(
-            master=app.tabs,
-            name=field,
-            columns=1,rows=1)
-        Result.Result(tab=tab,
-                      title='Custom Array',
-                      name='Custom Array',
-                      antenna=array,
-                      field=field,
-                      plot=plot,
-                      ticks_flag=False,
-                      in_dB=True,
-                      column=1,row=1,
-                      Ntheta=Ntheta,
-                      Nphi=Nphi)
-        app.add_tab(tab)
+        # field = 'F'
+        # tab = ResultFrame.ResultFrame(
+        #     master=app.tabs,
+        #     name=field,
+        #     columns=1,rows=1)
+        # Result.Result(tab=tab,
+        #               title='Custom Array',
+        #               name='Custom Array',
+        #               antenna=array,
+        #               field=field,
+        #               plot=plot,
+        #               ticks_flag=False,
+        #               in_dB=True,
+        #               column=1,row=1,
+        #               Ntheta=Ntheta,
+        #               Nphi=Nphi)
+        # app.add_tab(tab)
         
-        plot = '2d Polar Patch Type 2'
+        # plot = '2d Polar Patch Type 2'
         
-        field = 'Fref'
-        tab = ResultFrame.ResultFrame(
-            master=app.tabs,
-            name=field,
-            columns=1,rows=1)
-        Result.Result(tab=tab,
-                      title='Yagi 2 Elements',
-                      name='Yagi 2 Elements',
-                      antenna=antennas['hfss_yagi2EL'],
-                      field=field,
-                      plot=plot,
-                      ticks_flag=False,
-                      in_dB=True,
-                      column=1,row=1,
-                      Ntheta=Ntheta,
-                      Nphi=Nphi)
-        app.add_tab(tab)
+        # field = 'Fref'
+        # tab = ResultFrame.ResultFrame(
+        #     master=app.tabs,
+        #     name=field,
+        #     columns=1,rows=1)
+        # Result.Result(tab=tab,
+        #               title='Yagi 2 Elements',
+        #               name='Yagi 2 Elements',
+        #               antenna=antennas['hfss_yagi2EL'],
+        #               field=field,
+        #               plot=plot,
+        #               ticks_flag=False,
+        #               in_dB=True,
+        #               column=1,row=1,
+        #               Ntheta=Ntheta,
+        #               Nphi=Nphi)
+        # app.add_tab(tab)
         
-        field = 'Fcross'
-        tab = ResultFrame.ResultFrame(
-            master=app.tabs,
-            name=field,
-            columns=1,rows=1)
-        Result.Result(tab=tab,
-                      title='Custom',
-                      name='Custom',
-                      antenna=array,
-                      field=field,
-                      plot=plot,
-                      ticks_flag=False,
-                      in_dB=True,
-                      column=1,row=1,
-                      Ntheta=Ntheta,
-                      Nphi=Nphi)
-        app.add_tab(tab)
+        # field = 'Fcross'
+        # tab = ResultFrame.ResultFrame(
+        #     master=app.tabs,
+        #     name=field,
+        #     columns=1,rows=1)
+        # Result.Result(tab=tab,
+        #               title='Custom',
+        #               name='Custom',
+        #               antenna=array,
+        #               field=field,
+        #               plot=plot,
+        #               ticks_flag=False,
+        #               in_dB=True,
+        #               column=1,row=1,
+        #               Ntheta=Ntheta,
+        #               Nphi=Nphi)
+        # app.add_tab(tab)
         
-        field = 'Frhcp'
-        tab = ResultFrame.ResultFrame(
-            master=app.tabs,
-            name=field,
-            columns=1,rows=1)
-        Result.Result(tab=tab,
-                      title='Custom',
-                      name='Custom',
-                      antenna=array,
-                      field=field,
-                      plot=plot,
-                      ticks_flag=False,
-                      in_dB=True,
-                      column=1,row=1,
-                      Ntheta=Ntheta,
-                      Nphi=Nphi)
-        app.add_tab(tab)
+        # field = 'Frhcp'
+        # tab = ResultFrame.ResultFrame(
+        #     master=app.tabs,
+        #     name=field,
+        #     columns=1,rows=1)
+        # Result.Result(tab=tab,
+        #               title='Custom',
+        #               name='Custom',
+        #               antenna=array,
+        #               field=field,
+        #               plot=plot,
+        #               ticks_flag=False,
+        #               in_dB=True,
+        #               column=1,row=1,
+        #               Ntheta=Ntheta,
+        #               Nphi=Nphi)
+        # app.add_tab(tab)
         
-        field = 'Flhcp'
-        tab = ResultFrame.ResultFrame(
-            master=app.tabs,
-            name=field,
-            columns=1,rows=1)
-        Result.Result(tab=tab,
-                      title='Custom',
-                      name='Custom',
-                      antenna=array,
-                      field=field,
-                      plot=plot,
-                      ticks_flag=False,
-                      in_dB=True,
-                      column=1,row=1,
-                      Ntheta=Ntheta,
-                      Nphi=Nphi)
-        app.add_tab(tab)
+        # field = 'Flhcp'
+        # tab = ResultFrame.ResultFrame(
+        #     master=app.tabs,
+        #     name=field,
+        #     columns=1,rows=1)
+        # Result.Result(tab=tab,
+        #               title='Custom',
+        #               name='Custom',
+        #               antenna=array,
+        #               field=field,
+        #               plot=plot,
+        #               ticks_flag=False,
+        #               in_dB=True,
+        #               column=1,row=1,
+        #               Ntheta=Ntheta,
+        #               Nphi=Nphi)
+        # app.add_tab(tab)
 
         # Main application loop
         app.mainloop()
