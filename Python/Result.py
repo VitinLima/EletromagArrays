@@ -9,8 +9,9 @@ import tkinter as tk
 import numpy as np
 from scipy.interpolate import griddata
 
-# import matplotlib as mpl
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib import cm
 
 import Geometry
 
@@ -23,24 +24,28 @@ degree_sign = u"\N{DEGREE SIGN}"
 
 
 class Result():
-    available_plots = ['2d Graph',
-                       '2d Contour',
-                       '3d Surface',
-                       '2d Polar Graph',
-                       '2d Polar Contour',
-                       '2d Polar Patch',
-                       '2d Polar Patch Type 2',
-                       '3d Polar Surface',
-                       '3d Polar']
-    available_fields = ['F',
-                        'Ftheta',
-                        'Fphi',
-                        'Frhcp',
-                        'Flhcp',
-                        'Fref',
-                        'Fcross',
-                        'Ftheta-phi',
-                        'Fref-cross']
+    available_plots = [
+        # '2d Graph',
+        # '2d Contour',
+        '3d Surface',
+        # '2d Polar Graph',
+        # '2d Polar Contour',
+        '2d Polar Patch',
+        '2d Polar Patch Type 2',
+        '3d Polar Surface',
+        '3d Polar'
+        ]
+    available_fields = [
+        'F',
+        'Ftheta',
+        'Fphi',
+        'Frhcp',
+        'Flhcp',
+        'Fref',
+        'Fcross',
+        'Ftheta-phi',
+        'Fref-cross'
+        ]
     # plot_projections = ['2d', '2d', '2d', '3d', '2d', '2d', ]
 
     def __init__(self, tab, name='New result', title='Title',
@@ -74,14 +79,15 @@ class Result():
                  column=1, row=1,
                  compare_fields=None,
                  view_camera=None,
-                 Ntheta=21,
+                 Ntheta=6,
                  theta_i=0,
                  theta_f=90,
-                 Nphi=21,
+                 Nphi=6,
                  phi_i=-180,
                  phi_f=180,
                  Nx=21,
                  Ny=21,
+                 antialiased=True,
                  reference_2d=Geometry.ReferenceSystem()):
         self.name = name
         self.title = title
@@ -129,6 +135,7 @@ class Result():
         self.phi_f = phi_f
         self.Nx = Nx
         self.Ny = Ny
+        self.antialiased = antialiased
         self.labelsize = 20
         if not self.in_dB:
             self.colorbar_max = 1
@@ -370,7 +377,7 @@ class Result():
                            [a_31, a_32, a_33]])
         return matrix.swapaxes(0, 2).swapaxes(1, 3)
 
-    def get_field(self, antenna=None, field=None):
+    def get_field(self, antenna=None, field=None, interp=False):
         if antenna is None:
             antenna = self.antenna
         if field is None:
@@ -414,6 +421,11 @@ class Result():
         field_phase = np.angle(field)
         if self.in_dB:
             field_magnitude = 20*np.log10(field_magnitude)
+            # self.vmin = self.colorbar_dB_min
+            # self.vmax = self.colorbar_dB_max
+        # else:
+        #     self.vmin = self.colorbar_min
+        #     self.vmax = self.colorbar_max
         #     field_mag[field_mag <
         #               self.dynamic_scaling_dB] = self.dynamic_scaling_dB
         #     self.colorbar_label = '[dB]'
@@ -426,7 +438,60 @@ class Result():
         # color = self.analysis.evaluate_color(antenna)
         # if str(type(color))=="<class 'NoneType'>":
         #     color = field
-        return field_magnitude, field_phase
+        
+        if self.color_by=='Color by phase':
+            self.vmin = -180
+            self.vmax = 180
+        elif self.color_by=='Color by magnitude':
+            if self.in_dB:
+                self.vmin = self.colorbar_dB_min
+                self.vmax = self.colorbar_dB_max
+            else:
+                self.vmin = self.colorbar_min
+                self.vmax = self.colorbar_max
+        
+        if interp:
+            interp_theta_deg = np.linspace(self.theta_i, self.theta_f, self.Ntheta)
+            interp_phi_deg = np.linspace(self.phi_i, self.phi_f, self.Nphi)
+    
+            self.interp_mesh_phi_deg, self.interp_mesh_theta_deg = np.meshgrid(
+                interp_phi_deg, interp_theta_deg)
+            
+            field_magnitude = self.antenna.interpolate_at(
+                self.interp_mesh_theta_deg,
+                self.interp_mesh_phi_deg,
+                field_magnitude)
+            
+            field_phase = self.antenna.interpolate_at(
+                self.interp_mesh_theta_deg,
+                self.interp_mesh_phi_deg,
+                field_phase)
+            
+            # normalized_field_magnitude = self.antenna.interpolate_at(
+            #     self.interp_mesh_theta_deg,
+            #     self.interp_mesh_phi_deg,
+            #     normalized_field_magnitude)
+            
+            # normalized_field_phase = self.antenna.interpolate_at(
+            #     self.interp_mesh_theta_deg,
+            #     self.interp_mesh_phi_deg,
+            #     normalized_field_phase)
+
+        field_magnitude_max = field_magnitude.max()
+        field_magnitude_min = field_magnitude.min()
+        if field_magnitude_max != field_magnitude_min:
+            normalized_field_magnitude = (field_magnitude-field_magnitude_min)/(field_magnitude_max-field_magnitude_min)
+        else:
+            normalized_field_magnitude = np.zeros_like(field_magnitude)
+        
+        field_magnitude_max = field_phase.max()
+        field_magnitude_min = field_phase.min()
+        if field_magnitude_max != field_magnitude_min:
+            normalized_field_phase = (field_phase-field_magnitude_min)/(field_magnitude_max-field_magnitude_min)
+        else:
+            normalized_field_phase = np.zeros_like(field_phase)
+        
+        return field_magnitude, field_phase, normalized_field_magnitude, normalized_field_phase
 
     def set_antenna(self, antenna):
         # self.undraw()
@@ -589,45 +654,58 @@ class Result():
         self.graphical_objects = self.axes.plot(angles, field)
 
     def draw_polar_contourf(self):
-        field, color = self.get_field()
+        field_magnitude, field_phase, normalized_field_magnitude, normalized_field_phase = self.get_field()
 
         self.graphical_objects = self.axes.contourf(
             self.antenna.mesh_phi,
             np.degrees(self.antenna.mesh_theta),
-            field, 10, cmap='jet')
+            field_magnitude, 10, cmap='jet')
 
     def draw_contourf(self):
-        field, color = self.get_field()
+        field_magnitude, field_phase, normalized_field_magnitude, normalized_field_phase = self.get_field()
 
         x = self.antenna.mesh_phi
         y = self.antenna.mesh_theta
 
         self.graphical_objects = self.axes.contourf(
-            x, y, field, 10, cmap='jet')
+            x, y, field_magnitude, 10, cmap='jet')
 
     def draw_polar3d(self):
-        field, color = self.get_field()
+        field_magnitude, field_phase, normalized_field_magnitude, normalized_field_phase = self.get_field()
 
         position = np.array([self.antenna.x,
                              self.antenna.y,
                              self.antenna.z])
-        min_field = np.min(field)
-        if min_field < 0:
-            field -= min_field
-        R = field[:, :, np.newaxis]*self.antenna.hat_k
-
-        jet = plt.colormaps['jet']
-        color_max = color.max()
-        color_min = color.min()
-        if color_max != color_min:
-            C = (color-color_min)/(color_max-color_min)
-            rgb = jet(C)
+        if self.in_dB:
+            min_field = np.min(field_magnitude)
+            R = (field_magnitude[:, :, np.newaxis]-min_field)*self.antenna.hat_k
         else:
-            rgb = list(color.shape)
-            rgb.append(4)
-            rgb = np.zeros(tuple(rgb))
-            rgb[:, :, 3] = 1
-            rgb[:, :, 2] = 1
+            R = field_magnitude[:, :, np.newaxis]*self.antenna.hat_k
+        
+        field_max = field_magnitude.max()
+        field_min = field_magnitude.min()
+        if field_max != field_min:
+            normalized_field_magnitude = (field_magnitude-field_min)/(field_max-field_min)
+        else:
+            normalized_field_magnitude = np.zeros_like(field_magnitude)
+
+        if self.color_by=='Color by magnitude':
+            jet = plt.colormaps['jet']
+            # if self.in_dB:
+            #     if color_max != color_min:
+            #         C = (field_magnitude-color_min)/(color_max-color_min)
+            #         rgb = jet(C)
+            #     else:
+            #         rgb = list(field_magnitude.shape)
+            #         rgb.append(4)
+            #         rgb = np.zeros(tuple(rgb))
+            #         rgb[:, :, 3] = 1
+            #         rgb[:, :, 2] = 1
+            # else:
+            rgb = jet(normalized_field_magnitude)
+        elif self.color_by=='Color by phase':
+            jet = plt.colormaps['jet']
+            rgb = jet(normalized_field_phase)
         if self.translate:
             R += position
         self.graphical_objects = self.axes.plot_surface(
@@ -637,78 +715,68 @@ class Result():
         self.properties['axis'] = 'equal'
 
     def draw_surface(self):
-        field, color = self.get_field()
+        field_magnitude, field_phase, normalized_field_magnitude, normalized_field_phase = self.get_field(interp=True)
 
-        interp_x = np.linspace(0, 90, self.Nx)
-        interp_y = np.linspace(-180, 180, self.Ny)
+        # interp_x = np.linspace(self.theta_i, self.theta_f, self.Ntheta)
+        # interp_y = np.linspace(self.phi_i, self.phi_f, self.Nphi)
 
-        interp_mesh_x, interp_mesh_y = np.meshgrid(interp_x, interp_y)
+        # interp_mesh_x, interp_mesh_y = np.meshgrid(interp_x, interp_y)
 
-        field = self.antenna.interpolate_at(
-            interp_mesh_x, interp_mesh_y, field)
+        # field_magnitude = self.antenna.interpolate_at(
+        #     interp_mesh_x, interp_mesh_y, field_magnitude)
 
-        jet = plt.colormaps['jet']
-        if str(type(color)) == "<class 'NoneType'>":
-            color = field
-        color_max = color.max()
-        color_min = color.min()
-        if color_max != color_min:
-            C = (color-color_min)/(color_max-color_min)
-            rgb = jet(C)
-        else:
-            rgb = list(color.shape)
-            rgb.append(4)
-            rgb = np.zeros(tuple(rgb))
-            rgb[:, :, 3] = 1
-            rgb[:, :, 2] = 1
+        if self.color_by=='Color by magnitude':
+            cmap = plt.colormaps['jet']
+            color = field_magnitude
+            # rgb = cmap(normalized_field_magnitude)
+            # if self.in_dB:
+            #     color_max = field_magnitude.max()
+            #     color_min = field_magnitude.min()
+            #     if color_max != color_min:
+            #         C = (field_magnitude-color_min)/(color_max-color_min)
+            #         rgb = jet(C)
+            #     else:
+            #         rgb = list(field_magnitude.shape)
+            #         rgb.append(4)
+            #         rgb = np.zeros(tuple(rgb))
+            #         rgb[:, :, 3] = 1
+            #         rgb[:, :, 2] = 1
+            # else:
+        elif self.color_by=='Color by phase':
+            cmap = plt.colormaps['twilight']
+            # field_phase = self.antenna.interpolate_at(
+            #     self.interp_mesh_theta_deg, self.interp_mesh_phi_deg, field_phase)
+            # rgb = cmap(normalized_field_phase)
+            color = 180*field_phase/np.pi
 
+        norm=mpl.colors.Normalize(vmin=self.vmin,vmax=self.vmax)
+        m = cm.ScalarMappable(cmap=cmap, norm=norm)
         self.graphical_objects = self.axes.plot_surface(
-            interp_mesh_x, interp_mesh_y, field,
-            rstride=1, cstride=1, facecolors=rgb,
-            linewidth=0, antialiased=False)
+            self.interp_mesh_theta_deg,
+            self.interp_mesh_phi_deg,
+            field_magnitude,
+            rstride=1, cstride=1, facecolors=cmap(norm(color)),
+            linewidth=0, antialiased=self.antialiased)
+        plt.colorbar(m,
+                     ax=self.axes,
+                     label=self.colorbar_label, extend='both',
+                     # anchor=(0.0, 0.7),
+                     pad=0.1)
 
     def draw_polar_surface(self):
-        field_magnitude, field_phase = self.get_field()
-
-        interp_theta_deg = np.linspace(self.theta_i, self.theta_f, self.Ntheta)
-        interp_phi_deg = np.linspace(self.phi_i, self.phi_f, self.Nphi)
-
-        interp_mesh_phi_deg, interp_mesh_theta_deg = np.meshgrid(
-            interp_phi_deg, interp_theta_deg)
+        field_magnitude, field_phase, normalized_field_magnitude, normalized_field_phase = self.get_field(interp=True)
         
         if self.color_by=='Color by magnitude':
-            color = self.antenna.interpolate_at(
-                interp_mesh_theta_deg,
-                interp_mesh_phi_deg,
-                field_magnitude)
-            cmap = 'jet'
-            self.vmin = self.colorbar_dB_min
-            self.vmax = self.colorbar_dB_max
-            plt.colorbar(self.graphical_objects, ax=self.axes,
-                          label=self.colorbar_label, extend='both',
-                          pad=0.1)
+            cmap = plt.colormaps['jet']
+            # rgb = cmap(normalized_field_magnitude)
+            color = field_magnitude
         elif self.color_by=='Color by phase':
-            color = self.antenna.interpolate_at(
-                interp_mesh_theta_deg,
-                interp_mesh_phi_deg,
-                field_phase)
-            if self.in_degrees:
-                color = 180*color/np.pi
-            cmap = 'twilight'
-            # self.graphical_objects = self.axes.pcolormesh(
-            #     np.radians(interp_mesh_phi_deg),
-            #     90*np.sin(np.radians(interp_mesh_theta_deg)),
-            #     180*field_phase/np.pi,
-            #     # norm=norm,
-            #     shading='gouraud',
-            #     cmap=cmap,
-            #     vmin=-180,
-            #     vmax=180)
-            self.vmin=-180
-            self.vmax=180
+            cmap = plt.colormaps['twilight']
+            # rgb = cmap(normalized_field_phase)
+            color = 180*field_phase/np.pi
         # self.graphical_objects = self.axes.pcolormesh(
         #     np.radians(interp_mesh_phi_deg),
-        #     90*np.sin(np.radians(interp_mesh_theta_deg)),
+        #     90*np.sin(np.radians(self.interp_mesh_theta_deg)),
         #     color,
         #     rstride=1, cstride=1, facecolors=rgb,
         #     linewidth=0, antialiased=False,
@@ -719,7 +787,7 @@ class Result():
         #     vmax=self.vmax)
 
         # field = self.antenna.interpolate_at(
-        #     interp_mesh_theta_deg, interp_mesh_phi_deg, field)
+        #     self.interp_mesh_theta_deg, interp_mesh_phi_deg, field)
 
         # jet = plt.colormaps['jet']
         # color_max = color.max()
@@ -734,61 +802,73 @@ class Result():
         #     rgb[:, :, 3] = 1
         #     rgb[:, :, 2] = 1
 
+        norm=mpl.colors.Normalize(vmin=self.vmin,vmax=self.vmax)
+        m = cm.ScalarMappable(cmap=cmap, norm=norm)
         self.graphical_objects = self.axes.plot_surface(
-            np.radians(interp_mesh_phi_deg),
-            np.sin(np.radians(interp_mesh_theta_deg)),
-            color,
-            rstride=1, cstride=1,#, facecolors=rgb,
-            linewidth=0, antialiased=False)
+            np.cos(np.radians(self.interp_mesh_phi_deg))* \
+                self.interp_mesh_theta_deg,
+            np.sin(np.radians(self.interp_mesh_phi_deg))* \
+                self.interp_mesh_theta_deg,
+            field_magnitude,
+            rstride=1, cstride=1, facecolors=cmap(norm(color)),
+            linewidth=0, antialiased=self.antialiased)
+        plt.colorbar(m,
+                     ax=self.axes,
+                     label=self.colorbar_label, extend='both',
+                     # anchor=(0.0, 0.7),
+                     pad=0.1)
 
     def draw_polar_patch(self):
-        field_magnitude, field_phase = self.get_field()
+        field_magnitude, field_phase, normalized_field_magnitude, normalized_field_phase = self.get_field(interp=True)
 
-        interp_theta_deg = np.linspace(self.theta_i, self.theta_f, self.Ntheta)
-        interp_phi_deg = np.linspace(self.phi_i, self.phi_f, self.Nphi)
+        # interp_theta_deg = np.linspace(self.theta_i, self.theta_f, self.Ntheta)
+        # interp_phi_deg = np.linspace(self.phi_i, self.phi_f, self.Nphi)
 
-        interp_mesh_phi_deg, interp_mesh_theta_deg = np.meshgrid(
-            interp_phi_deg, interp_theta_deg)
+        # interp_mesh_phi_deg, interp_mesh_theta_deg = np.meshgrid(
+        #     interp_phi_deg, interp_theta_deg)
 
         if self.color_by == 'Color by magnitude':
-            field_magnitude = self.antenna.interpolate_at(
-                interp_mesh_theta_deg,
-                interp_mesh_phi_deg,
-                field_magnitude)
+            # field_magnitude = self.antenna.interpolate_at(
+            #     self.interp_mesh_theta_deg,
+            #     interp_mesh_phi_deg,
+            #     field_magnitude)
             cmap = 'jet'
-            self.graphical_objects = self.axes.pcolormesh(
-                np.radians(interp_mesh_phi_deg),
-                90*np.sin(np.radians(interp_mesh_theta_deg)),
-                field_magnitude,
-                # norm=norm,
-                shading='gouraud',
-                cmap=cmap,
-                vmin=self.colorbar_min,
-                vmax=self.colorbar_max)
-            plt.colorbar(self.graphical_objects, ax=self.axes,
-                          label=self.colorbar_label, extend='both',
-                          pad=0.1)
-                           # boundaries=[self.colorbar_min, self.colorbar_max])
+            color = field_magnitude
+            # self.graphical_objects = self.axes.pcolormesh(
+            #     np.radians(self.interp_mesh_phi_deg),
+            #     90*np.sin(np.radians(self.interp_mesh_theta_deg)),
+            #     field_magnitude,
+            #     # norm=norm,
+            #     shading='gouraud',
+            #     cmap=cmap,
+            #     vmin=self.vmin,
+            #     vmax=self.vmax
+            #     )
+            # plt.colorbar(self.graphical_objects, ax=self.axes,
+            #               label=self.colorbar_label, extend='both',
+            #               pad=0.1)
+            #                # boundaries=[self.colorbar_min, self.colorbar_max])
         elif self.color_by == 'Color by phase':
-            field_phase = self.antenna.interpolate_at(
-                interp_mesh_theta_deg,
-                interp_mesh_phi_deg,
-                field_phase)
+            # field_phase = self.antenna.interpolate_at(
+            #     self.interp_mesh_theta_deg,
+            #     self.interp_mesh_phi_deg,
+            #     field_phase)
             cmap = 'twilight'
-            self.graphical_objects = self.axes.pcolormesh(
-                np.radians(interp_mesh_phi_deg),
-                90*np.sin(np.radians(interp_mesh_theta_deg)),
-                180*field_phase/np.pi,
-                # norm=norm,
-                shading='gouraud',
-                cmap=cmap,
-                vmin=-180,
-                vmax=180)
-            plt.colorbar(self.graphical_objects, ax=self.axes,
-                          label=self.colorbar_label, extend='both',
-                          # anchor=(0.0, 0.7),
-                          pad=0.1)
-                           # boundaries=[self.colorbar_min, self.colorbar_max])
+            color = 180*field_phase/np.pi
+        self.graphical_objects = self.axes.pcolormesh(
+            np.radians(self.interp_mesh_phi_deg),
+            90*np.sin(np.radians(self.interp_mesh_theta_deg)),
+            color,
+            # norm=norm,
+            shading='gouraud',
+            cmap=cmap,
+            vmin=self.vmin,
+            vmax=self.vmax)
+        plt.colorbar(self.graphical_objects, ax=self.axes,
+                      label=self.colorbar_label, extend='both',
+                      # anchor=(0.0, 0.7),
+                      pad=0.1)
+                       # boundaries=[self.colorbar_min, self.colorbar_max])
 
         # color_max = color.max()
         # color_min = color.min()
@@ -807,28 +887,30 @@ class Result():
         self.rticks = [22.5, 45, 66.5, 90]
 
     def draw_polar_patch_type_2(self):
-        field_magnitude, field_phase = self.get_field()
+        field_magnitude, field_phase, normalized_field_magnitude, normalized_field_phase = self.get_field()
 
         if self.color_by == 'Color by magnitude':
             cmap = 'jet'
-            self.graphical_objects = self.axes.pcolormesh(
-                self.antenna.mesh_phi,
-                180*self.antenna.mesh_theta/np.pi,
-                field_magnitude,
-                shading='gouraud',
-                cmap=cmap,
-                vmin=self.colorbar_min,
-                vmax=self.colorbar_max)
+            color = field_magnitude
+            # self.graphical_objects = self.axes.pcolormesh(
+            #     self.antenna.mesh_phi,
+            #     180*self.antenna.mesh_theta/np.pi,
+            #     field_magnitude,
+            #     shading='gouraud',
+            #     cmap=cmap,
+            #     vmin=self.vmin,
+            #     vmax=self.vmax)
         elif self.color_by == 'Color by phase':
             cmap = 'twilight'
-            self.graphical_objects = self.axes.pcolormesh(
-                self.antenna.mesh_phi,
-                180*self.antenna.mesh_theta/np.pi,
-                180*field_phase/np.pi,
-                shading='gouraud',
-                cmap=cmap,
-                vmin=-180,
-                vmax=180)
+            color = 180*field_phase/np.pi
+        self.graphical_objects = self.axes.pcolormesh(
+            self.antenna.mesh_phi,
+            180*self.antenna.mesh_theta/np.pi,
+            color,
+            shading='gouraud',
+            cmap=cmap,
+            vmin=self.vmin,
+            vmax=self.vmax)
         plt.colorbar(self.graphical_objects, ax=self.axes,
                      label=self.colorbar_label)
 

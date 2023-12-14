@@ -271,16 +271,16 @@ if __name__ == "__main__":
                             theta=theta.copy(),
                             phi=phi.copy(),
                             antennas=[
-                                antennas['hfss_yagi2EL'].copy(),
-                                antennas['hfss_yagi2EL'].copy(),
+                                antennas['hfss_yagi4EL'].copy(),
+                                antennas['hfss_yagi4EL'].copy(),
                                 ])
-        array.antennas[0].set_position(x=0,y=0,z=0)
+        array.antennas[0].set_position(x=0,y=-0.25,z=0)
         array.antennas[0].set_orientation(
             elevation=-90,azimuth=0,roll=0)
         array.antennas[0].set_current(
             magnitude=1.0,
             phase=0)
-        array.antennas[1].set_position(x=0,y=0,z=0)
+        array.antennas[1].set_position(x=0,y=0.25,z=0)
         array.antennas[1].set_orientation(
             elevation=-90,azimuth=0,roll=90)
         array.antennas[1].set_current(
@@ -293,19 +293,20 @@ if __name__ == "__main__":
         import ResultFrame
         import Result
         
-        Ntheta = 91
-        Nphi = 181
-        field = 'F'
-        plot = '2d Polar Patch Type 2'
+        Ntheta = 21
+        Nphi = 21
+        field = 'Fref'
+        # plot = '2d Polar Patch Type 2'
+        plot = '3d Surface'
         
         tab = ResultFrame.ResultFrame(
             master=app.tabs,
             name='Tab',
             columns=2,rows=1)
         Result.Result(tab=tab,
-                      title='Yagi 2 Elements',
-                      name='Yagi 2 Elements',
-                      antenna=antennas['hfss_yagi2EL'],
+                      title='2 Yagis 4 Elements',
+                      name='2 Yagis 4 Elements',
+                      antenna=array,
                       field=field,
                       plot=plot,
                       ticks_flag=False,
@@ -314,9 +315,9 @@ if __name__ == "__main__":
                       Ntheta=Ntheta,
                       Nphi=Nphi)
         Result.Result(tab=tab,
-                      title='Custom Array',
-                      name='Custom Array',
-                      antenna=array,
+                      title='HFSS 5Y4EL',
+                      name='HFSS 5Y4EL',
+                      antenna=antennas['HFSS_5Y4EL'],
                       field=field,
                       plot=plot,
                       ticks_flag=False,

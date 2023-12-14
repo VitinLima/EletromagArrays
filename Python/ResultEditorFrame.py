@@ -68,9 +68,12 @@ class ResultEditorFrame(ttk.Frame):
         self.visible_flag_variable = tk.IntVar(value=self.result.visible_flag)
         self.axis_flag_variable = tk.IntVar(value=self.result.axis_flag)
         self.grid_flag_variable = tk.IntVar(value=self.result.grid_flag)
+        self.antialiased_variable = tk.IntVar(value=self.result.antialiased)
         self.add_colorbar_variable = tk.IntVar(value=self.result.add_colorbar)
-        self.colorbar_min_variable = tk.DoubleVar(value=self.result.color_bybar_min)
-        self.colorbar_max_variable = tk.DoubleVar(value=self.result.color_bybar_max)
+        self.colorbar_dB_min_variable = tk.DoubleVar(value=self.result.colorbar_dB_min)
+        self.colorbar_dB_max_variable = tk.DoubleVar(value=self.result.colorbar_dB_max)
+        self.colorbar_min_variable = tk.DoubleVar(value=self.result.colorbar_min)
+        self.colorbar_max_variable = tk.DoubleVar(value=self.result.colorbar_max)
 
         # self.edit_axes_frame_label = tk.StringVar()
 
@@ -179,6 +182,9 @@ class ResultEditorFrame(ttk.Frame):
         ttk.Checkbutton(
             master=fr_left_top_left, text='in dB',
             variable=self.in_dB_variable).pack(side='top', fill='both')
+        ttk.Checkbutton(
+            master=fr_left_top_left, text='antialiased',
+            variable=self.antialiased_variable).pack(side='top', fill='both')
 
         fr_left_top_left = ttk.Frame(master=fr_left_top)
         fr_left_top_left.pack(side='left', fill='both', padx=3, pady=3)
@@ -194,13 +200,40 @@ class ResultEditorFrame(ttk.Frame):
         fr_left_top_left.pack(side='top', fill='both', padx=3, pady=3)
 
         fr_left_top_left_left = ttk.LabelFrame(
-            master=fr_left_top_left, text='Dynamic Scaling (dB)')
-        fr_left_top_left_left.pack(side='left', fill='both', padx=3, pady=3)
-
+            master=fr_left_top_left, text='Dynamic Scaling')
+        fr_left_top_left_left.pack(side='left')
+        
+        fr_left_top_left_left_top = ttk.Frame(master=fr_left_top_left_left)
+        ttk.Label(master=fr_left_top_left_left_top, text="min dB").pack(side='left')
         ttk.Entry(
-            master=fr_left_top_left_left,
+            master=fr_left_top_left_left_top,
             textvariable=self.colorbar_dB_min_variable).pack(
             side='left', fill='both')
+        fr_left_top_left_left_top.pack(side='top', fill='both', padx=3, pady=3)
+
+        fr_left_top_left_left_top = ttk.Frame(master=fr_left_top_left_left)
+        ttk.Label(master=fr_left_top_left_left_top, text="max dB").pack(side='left')
+        ttk.Entry(
+            master=fr_left_top_left_left_top,
+            textvariable=self.colorbar_dB_max_variable).pack(
+            side='left', fill='both')
+        fr_left_top_left_left_top.pack(side='top', fill='both', padx=3, pady=3)
+        
+        fr_left_top_left_left_top = ttk.Frame(master=fr_left_top_left_left)
+        ttk.Label(master=fr_left_top_left_left_top, text="min").pack(side='left')
+        ttk.Entry(
+            master=fr_left_top_left_left_top,
+            textvariable=self.colorbar_min_variable).pack(
+            side='left', fill='both')
+        fr_left_top_left_left_top.pack(side='top', fill='both', padx=3, pady=3)
+
+        fr_left_top_left_left_top = ttk.Frame(master=fr_left_top_left_left)
+        ttk.Label(master=fr_left_top_left_left_top, text="max").pack(side='left')
+        ttk.Entry(
+            master=fr_left_top_left_left_top,
+            textvariable=self.colorbar_max_variable).pack(
+            side='left', fill='both')
+        fr_left_top_left_left_top.pack(side='top', fill='both', padx=3, pady=3)
 
         self.plot_frame = ttk.LabelFrame(master=self, text='Plot options')
 
@@ -295,8 +328,8 @@ class ResultEditorFrame(ttk.Frame):
         self.result.axis_flag = self.axis_flag_variable.get() == 1
         self.result.grid_flag = self.grid_flag_variable.get() == 1
         self.result.add_colorbar = self.add_colorbar_variable.get() == 1
-        self.result.color_bybar_min = self.colorbar_min_variable.get()
-        self.result.color_bybar_max = self.colorbar_max_variable.get()
+        self.result.colorbar_min = self.colorbar_min_variable.get()
+        self.result.colorbar_max = self.colorbar_max_variable.get()
 
         self.result.ok = False
         self.result.update()

@@ -15,7 +15,7 @@ import Antenna
 
 def run(Ntheta=91, Nphi=91):
     
-    theta=np.linspace(0, 90, Ntheta)
+    theta=np.linspace(0, 180, Ntheta)
     phi=np.linspace(-180, 180, Nphi)
     
     antenna_path = os.path.join(header.antennas_dir, '1Y-4EL.csv')
