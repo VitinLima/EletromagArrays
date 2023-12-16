@@ -1,0 +1,43 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: EletromagArrays
+message: 'If you use this software, please cite it as below.'
+type: software
+authors:
+  - email: aguirra.vitor@gmail.com
+    affiliation: UnB
+    given-names: Vítor
+    family-names: Lima Aguirra
+identifiers:
+  - type: url
+    value: 'https://github.com/VitinLima/EletromagArrays.git'
+    description: GitHub repository of the software
+repository-code: 'https://github.com/VitinLima/EletromagArrays.git'
+url: 'https://github.com/'
+abstract: >-
+  EletromagArrays is a collection of Octave and Python
+  scripts capable of modeling arbitrary antenna arrays and
+  computing their resultant electromagnetic fields from the
+  individual electric field of each antenna composing the
+  array. It is suitable for systems excited with constant
+  frequencies (Harmonic Regime) working on the far-field
+  (Fraunhofer field) of the array and when each antenna is
+  positioned in the far fields of all neighbors antennas, so
+  that inducted currents on other antennas can be ignored.
+  Each antenna is modeled as a point-like source of
+  electromagnetic fields. The resultant fields are
+  calculated from the array factor resulting from the
+  translation and rotation of each antenna. The position,
+  orientation and current magnitude and phase can be
+  parametrized individually.
+keywords:
+  - Electromagnetism
+  - Antenna
+  - Antenna Array
+  - EletromagArrays
+  - Far field
+  - Fraunhofer
+  - Eletric fields
+  - Harmonic Regime

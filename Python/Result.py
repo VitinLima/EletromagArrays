@@ -430,11 +430,15 @@ class Result():
         #               self.dynamic_scaling_dB] = self.dynamic_scaling_dB
         #     self.colorbar_label = '[dB]'
 
-        # if self.color_by == 'Color by magnitude':
-        #     color = field_mag
-        # elif self.color_by == 'Color by phase':
-        #     color = field_phase
-        #     self.colorbar_label = '[deg]'
+        if self.color_by == 'Color by magnitude':
+            # color = field_mag
+            if self.in_dB:
+                self.colorbar_label = '[dB]'
+            else:
+                self.colorbar_label = ''
+        elif self.color_by == 'Color by phase':
+            # color = field_phase
+            self.colorbar_label = '[deg]'
         # color = self.analysis.evaluate_color(antenna)
         # if str(type(color))=="<class 'NoneType'>":
         #     color = field
@@ -912,7 +916,7 @@ class Result():
             vmin=self.vmin,
             vmax=self.vmax)
         plt.colorbar(self.graphical_objects, ax=self.axes,
-                     label=self.colorbar_label)
+                     label=self.colorbar_label, pad=0.1)
 
         # color_max = color.max()
         # color_min = color.min()

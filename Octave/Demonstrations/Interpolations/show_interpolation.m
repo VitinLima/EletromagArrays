@@ -3,7 +3,7 @@ clear all; close all; clc;
 N_theta = 9;
 N_phi = 11;
 
-fontsize = 20.0;
+fontsize = 10.0;
 
 elevation = -40;
 azimuth = 15;

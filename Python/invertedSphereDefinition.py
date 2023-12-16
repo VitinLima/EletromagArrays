@@ -10,9 +10,9 @@ import sys
 import os
 import header
 
-python_path = header.python_path
+#python_path = header.python_path
 results_dir = os.path.join(header.results_dir, 'Validation')
-home_dir = header.home_dir
+#home_dir = header.home_dir
 antennas_dir = header.antennas_dir
 
 import numpy as np
@@ -63,7 +63,7 @@ Result.Result(tab=figure,
               field=field,
               color=color,
               plot=plot,
-              ticks_flag=False,
+              # ticks_flag=False,
               in_dB=True,
               Ntheta=91,
               Nphi=91,)
@@ -81,7 +81,7 @@ Result.Result(tab=figure,
               field=field,
               color=color,
               plot=plot,
-              ticks_flag=False,
+              # ticks_flag=False,
               in_dB=True,
               Ntheta=91,
               Nphi=91,)
